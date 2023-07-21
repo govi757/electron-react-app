@@ -1,0 +1,42 @@
+{
+  "name": "electron-react-app",
+  "version": "1.0.0",
+  "description": "Electron test app",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --config webpack.common.js --watch",
+    "start": "electron .",
+    "package": "electron-packager . MyApp --platform=darwin --arch=x64 --out=dist/",
+    "dmg": "electron-installer-dmg dist/MyApp-darwin-x64/MyApp.app MyApp --out=dist/"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.22.9",
+    "@babel/preset-env": "^7.22.9",
+    "@babel/preset-react": "^7.22.5",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^9.1.3",
+    "css-loader": "^6.8.1",
+    "electron": "^25.3.0",
+    "electron-root-path": "^1.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "sass": "^1.63.6",
+    "sass-loader": "^13.3.2",
+    "style-loader": "^3.3.3",
+    "webpack": "^5.88.1",
+    "webpack-cli": "^5.1.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.3",
+    "@types/node": "^20.4.2",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "electron-installer-dmg": "^4.0.0",
+    "electron-packager": "^17.1.1",
+    "electron-reload": "^2.0.0-alpha.1",
+    "typescript": "^5.1.6"
+  }
+}
