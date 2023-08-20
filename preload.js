@@ -1,6 +1,6 @@
 const { ipcRenderer, contextBridge } = require("electron");
 
-ipcRenderer;
+
 contextBridge.exposeInMainWorld("electron", {
   notificationApi: {
     sendNotification(message) {
@@ -16,15 +16,13 @@ contextBridge.exposeInMainWorld("electron", {
     },
     createFile(src, fileName,content="{}") {
       console.log("Create file");
-      const filePath = `${src}/${fileName}`;
-      ipcRenderer.send("create-file", filePath,content);
+      // const filePath = `${src}/${fileName}`;
+      ipcRenderer.send("create-file", src, fileName,content);
     },
     readFile(src, fileName, res=() => {}) {
       const filePath = `${src}/${fileName}`;
-      ipcRenderer.invoke("read-file", filePath,content => {
-        console.log(content)
-        res(content);
-      });
+      console.log(filePath,"filePath")
+      return ipcRenderer.invoke("read-file", filePath)
     },
     openFolder(res = () => {}) {
       ipcRenderer.invoke("open-folder", "Hello").then((response) => {
@@ -41,6 +39,9 @@ contextBridge.exposeInMainWorld("electron", {
       ipcRenderer.invoke("is-file-exist", filePath).then((response) => {
         res(response);
       });
+    },
+    copyFolder(des) {
+      ipcRenderer.invoke("copy-base-folder",  des);
     },
   },
   batteryApi: {},

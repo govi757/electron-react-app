@@ -3,6 +3,9 @@ export interface IApi {
     type: ApiType;
     input: any;
     output?: any;
+    testData?: any;
+    testResponse?: ApiResponse;
+    authenticated?: boolean;
 }
 
 export interface IApiSection {
@@ -22,5 +25,13 @@ export enum DataTypes {
     Object="object",
     Date="date",
     Any="any",
+    StringArray="string[]",
+    ObjectArray="string[]",
+    AnyArray="any[]",
 
+}
+
+export interface ApiResponse {
+    status: any;
+    body: any;
 }
