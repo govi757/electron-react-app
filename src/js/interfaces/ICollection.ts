@@ -23,7 +23,8 @@ export enum FieldType {
     Number="Number",
     Date="Date",
     Object="Object",
-    StringArray="[String]"
+    StringArray="[String]",
+    Boolean="Boolean"
 }
 
 

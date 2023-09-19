@@ -28,7 +28,6 @@ export const CollectionForm = ({
     ]);
   };
   useEffect(() => {
-    console.log(collectionData,"collectionData")
     if(collectionData) {
       setCollectionForm(collectionData);
       setFieldList([...collectionData.fields])
@@ -49,7 +48,6 @@ export const CollectionForm = ({
   };
 
   const changeField = (value: any, index: number) => {
-    console.log(value, "value");
     fieldList[index] = { ...value };
     setFieldList([...fieldList]);
   };

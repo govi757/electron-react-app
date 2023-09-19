@@ -15,12 +15,29 @@ import './index.scss';
 const theme = createTheme({
   palette: {
     secondary: {
-      main: '#E33E7F'
+      main: '#9fafca'
     },
     primary: {
-      main: '#26648E'
+      main: '#0e387a'
     },
   },
+  components: {
+    MuiAccordion: {
+      styleOverrides: {
+        root: {
+          minHeight: '10px', // Adjust the height value as needed
+        },
+      },
+    },
+    MuiAccordionSummary:{
+      styleOverrides: {
+        content: {
+          minHeight: '10px', // Adjust the height value as needed
+          margin:"0px"
+        },
+      },
+    },
+  }
   
   
 });
@@ -29,14 +46,14 @@ export default function App() {
   return (
     <>
         <ThemeProvider theme={theme}>
-      <Provider store={store}>
+      {/* <Provider store={store}> */}
       <HashRouter>
         <Routes>
           <Route path="/" element={<OpeningPage />}></Route>
           <Route path="/workspace" element={<WorkspaceArea />}></Route>
         </Routes>
       </HashRouter>
-      </Provider>
+      {/* </Provider> */}
       </ThemeProvider>
     </>
   );

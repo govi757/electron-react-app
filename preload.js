@@ -43,6 +43,10 @@ contextBridge.exposeInMainWorld("electron", {
     copyFolder(des) {
       ipcRenderer.invoke("copy-base-folder",  des);
     },
+    copyFrontEndFolder(des) {
+      ipcRenderer.invoke("copy-frontend-base-folder",  des);
+    },
+    
   },
   batteryApi: {},
 });

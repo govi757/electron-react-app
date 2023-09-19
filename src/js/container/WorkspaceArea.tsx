@@ -15,6 +15,10 @@ import BasicProjectSetup from "./BasicProjectSetup";
 import ApiSetup from "./ApiSetup";
 import CollectionSetup from "./CollectionSetup";
 import { Button } from "@mui/material";
+import DataSetup from "./DataSetup";
+import { IData } from "../interfaces/IData";
+import DataTypeOperations from "../helper/dataTypeOperations";
+import FrontEndApiOperation from "../helper/frontEndApiOperations";
 
 // const tabList: ITab[] = [
 //     {
@@ -38,6 +42,9 @@ export default function WorkspaceArea() {
 
   const [collectionOperation] = useState(() => new CollectionOperation());
   const [apiOperation] = useState(() => new ApiOperation());
+  const [dataTypeOperation] = useState(() => new DataTypeOperations());
+  const [frontEndApiOperation] = useState(() => new FrontEndApiOperation());
+  
   useEffect(() => {
     getFileList();
   }, []);
@@ -58,9 +65,8 @@ export default function WorkspaceArea() {
           const index = baseFileList.findIndex(
             (fileType) => fileType.fileName === item
           );
-          console.log(item, "item");
           if (item === "apiConfig.json") {
-            tabList.push({
+            tempTabList.push({
               name: "Apis",
               component: <ApiSetup />,
               key: "apiSetup",
@@ -68,18 +74,25 @@ export default function WorkspaceArea() {
           }
 
           if (item === "dbConfig.json") {
-            tabList.push({
+            tempTabList.push({
               name: "DataBase",
               component: <CollectionSetup />,
               key: "collectionSetup",
             });
           }
 
-          SetTabList([...tabList]);
+          if (item === "dataConfig.json") {
+            tempTabList.push({
+              name: "DataTypes",
+              component: <DataSetup />,
+              key: "dataSetup",
+            });
+          }
+
+          SetTabList([...tempTabList]);
         });
 
       setFileList(fileList);
-      console.log(fileList, "fileList");
     });
   };
 
@@ -88,21 +101,34 @@ export default function WorkspaceArea() {
     electron.filesApi
       .readFile(selectedProjectPath, file)
       .then((dataString: any) => {
-        console.log(JSON.parse(dataString), "Data");
       });
   };
 
   const buildProject = async () => {
     if (confirm("Are you sure want to build the project")) {
       GeneratorHelper.copyBaseFolderStructure();
+      GeneratorHelper.createFrontEndFile();
+      
+      await initializeProject();
       buildApiServiceCode();
       buildCollectionCode();
-      await initializeProject();
+      buildDataCode();
       setTimeout(() => {
         getFileList();
       }, 1000);
     }
   };
+
+  const buildDataCode = () => {
+    const path = GeneratorHelper.getProjectPath() || "";
+    console.log(path,"path")
+    electron.filesApi
+      .readFile(path, "dataConfig.json")
+      .then((dataString: string) => {
+        const apiSectionList: IData[] = JSON.parse(dataString);
+        dataTypeOperation.buildDataCode(apiSectionList);
+      });
+  }
 
   const initializeProject = () => {
     const path = GeneratorHelper.getProjectPath() || "";
@@ -202,6 +228,13 @@ export default function WorkspaceArea() {
       "dbConfig.json",
       JSON.stringify(dbConfigJson)
     );
+
+    GeneratorHelper.createFile(
+      path,
+      "dataConfig.json",
+      "[]"
+    );
+    
   };
 
   const buildCollectionCode = () => {
@@ -221,6 +254,7 @@ export default function WorkspaceArea() {
       .then((dataString: string) => {
         const apiSectionList: IApiSection[] = JSON.parse(dataString);
         apiOperation.buildApiServiceCode(apiSectionList);
+        frontEndApiOperation.buildFrontEndCode(apiSectionList)
       });
   };
 

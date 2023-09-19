@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node ./dist/app.js",
+    "start": "tsc && NODE_ENV=dev node ./dist/app.js",
     "debug": "export DEBUG=* && npm run start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -21,7 +21,8 @@
     "express-winston": "^4.2.0",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.8.1",
-    "winston": "^3.8.2"
+    "winston": "^3.8.2",
+    "dotenv": "^16.3.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",

@@ -3,7 +3,7 @@
     import UserService from '../services/User/User.service';
     import express from 'express';
 
-    import {USER_SIGNUP_INPUT,USER_LOGIN_INPUT,USER_GETUSERDETAILS_INPUT,} from '../services/User/api.data';
+    import {USER_SIGNUP_INPUT,USER_LOGIN_INPUT,} from '../services/User/api.data';
 import verifyToken from '../middlewares/auth';
 
     export default class UserRoutes extends CommonRoutesConfig {
@@ -33,15 +33,7 @@ import verifyToken from '../middlewares/auth';
                             res.status(412).send(defaultPreCondition.errorBody)
                         }
                     });
-                    this.app.route('/user/get-user-details').get(verifyToken,async (req: express.Request, res: express.Response) => {
-                        const input: USER_GETUSERDETAILS_INPUT = USER_GETUSERDETAILS_INPUT.fromJSON(req.query);
-                        const defaultPreCondition = input.checkDefaultPreCondition();
-                        if(defaultPreCondition.isValid) {
-                        this.UserService.getUserDetails(input, res);
-                        } else {
-                            res.status(412).send(defaultPreCondition.errorBody)
-                        }
-                    });
+                    
 
             return this.app;
         }

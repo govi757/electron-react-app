@@ -9,6 +9,7 @@ import debug from 'debug';
 import bodyParser, {json, urlencoded} from 'body-parser';
 import mongoose from 'mongoose';
 import { CommonRoutesConfig } from './routes/common/common.routes.config';
+import dotenv from "dotenv";
 
 const app: express.Application = express();
 
@@ -24,9 +25,7 @@ app.use(express.json());
 app.use(cors());
 app.use(urlencoded());
 app.use(json());
-
-
-const mongoDB = "mongodb://127.0.0.1/vaishnavam";
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 mongoose.set('strictQuery', false);
 
 const runningMessage = `Server running ats http://localhost:${port}`;
@@ -40,9 +39,11 @@ const server: http.Server = http.createServer(app);
 
 
 server.listen(port, () => {
-    mongoose.connect(mongoDB).then(mongoConnection => {
+    if(process.env.MONGO_DB_URL) {
+    mongoose.connect(process.env.MONGO_DB_URL).then(mongoConnection => {
         console.log("Succesfully connected to the data base",routes)
     })
+    }
     console.log(runningMessage);
     routes.forEach((route: CommonRoutesConfig) => {
         

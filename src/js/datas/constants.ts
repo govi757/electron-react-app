@@ -1,0 +1,1 @@
+export const normalDataTypes =  ["string", "number", "object", "date","any","string[]","object[]","any[]",];

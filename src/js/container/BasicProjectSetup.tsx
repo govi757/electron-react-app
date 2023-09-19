@@ -17,7 +17,6 @@ export default function BasicProjectSetup() {
     const path = GeneratorHelper.getProjectPath() || "";
     electron.filesApi.readFile(path, "baseConfig.json").then((dataString) => {
       const data = JSON.parse(dataString);
-      console.log(data,"data")
       setProjectForm({
         name: data.name || '',
       });
@@ -25,7 +24,6 @@ export default function BasicProjectSetup() {
   };
 
   const handleButtonClick = (actionKey: string) => {
-    console.log(actionKey, "actionKey");
     if(actionKey=='submit') {
       const path = GeneratorHelper.getProjectPath() || '';
       GeneratorHelper.writeFile(path,'baseConfig.json',JSON.stringify(projectForm));

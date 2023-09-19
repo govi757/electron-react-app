@@ -13,15 +13,12 @@ import {
   DialogTitle,
   TextField,
   Toolbar,
-  Typography,
 } from "@mui/material";
 import Form, { FieldType, FormSchema } from "../component/form/Form";
 import { Rules } from "../component/form/rules";
 import ApiForm from "./ApiForm";
 import axios from "axios";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import { AddCircle, AddCircleOutline, DeleteOutline, EditOutlined } from "@mui/icons-material";
+import { AddCircleOutline, DeleteOutline, EditOutlined } from "@mui/icons-material";
 const electron: IPreLoad = ((window as any).electron as IPreLoad) || {};
 export default function ApiSetup() {
   const [apiSectionList, setApiSectionList] = useState<IApiSection[]>([]);
@@ -234,10 +231,10 @@ export default function ApiSetup() {
           testRes.body = err.response.data || {};
         });
     } else {
-      const getUrl = `${url}${Object.keys(api.testData).reduce((acc, cur) => {
+      const getUrl = `${url}${!!api.testData?Object.keys(api.testData).reduce((acc, cur) => {
         acc = acc +   `?${cur}=${api.testData[cur]}`
         return acc
-      },'')}`
+      },''):''}`
       await axios
         .get(getUrl)
         .then((res) => {
@@ -310,7 +307,7 @@ export default function ApiSetup() {
           : null}
         </DialogContent>
       </Dialog>
-      <div className="d-flex align-items-center mx-1 my-1 ">
+      <div className="d-flex align-items-center mx-1 my-1 text-primary">
         Sections: 
         <Button
         className="mx-3"
@@ -339,11 +336,11 @@ export default function ApiSetup() {
               <AccordionSummary>
                 <div className="d-flex w-100">
                   <div className="flex-fill">{apiSection.name}</div>
-                  <Button onClick={() => editApisSection(index)}>
-                    <EditOutlined />
+                  <Button size="small" onClick={() => editApisSection(index)}>
+                    <EditOutlined fontSize="small"/>
                   </Button>
-                  <Button onClick={() => deleteApisSection(index)}>
-                    <DeleteOutline />
+                  <Button size="small"  onClick={() => deleteApisSection(index)}>
+                    <DeleteOutline fontSize="small"/>
                   </Button>
                 </div>
               </AccordionSummary>

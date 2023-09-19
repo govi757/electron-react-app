@@ -15,3 +15,8 @@ body::before {
   border-bottom: 2px solid black;
   content: "Error: Can't find stylesheet to import.\a   \2577 \a 1 \2502  @import '~bootstrap/scss/bootstrap';\a   \2502          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\a   \2575 \a   index.scss 1:9  root stylesheet";
 }
+
+
+.MuiAccordionSummary-content {
+  margin: 3px 0px !important;
+}

@@ -1,4 +1,5 @@
 
+import { normalDataTypes } from "../datas/constants";
 import { ApiType, IApi, IApiSection } from "../interfaces/IApi";
 import GeneratorHelper from "./GeneratorHelper";
 
@@ -7,12 +8,10 @@ export default class ApiOperation {
     path: string = '';
     constructor() {
         GeneratorHelper.getSelectedNodeProjectPath((projectPath: string) => {
-            console.log(projectPath)
             this.path = projectPath;
         })
     }
     get apiPath() {
-        console.log(this.path, "this.path")
         return `${this.path}/src/services`;
     }
 
@@ -32,8 +31,8 @@ export default class ApiOperation {
 
 
     buildApiServiceCode(apiSectionList: IApiSection[]) {
+        // this.compileApiSection(apiSectionList);
         apiSectionList.map(apiSection => {
-
             this.writeApi(apiSection);
             this.writeInterfaceCode(apiSection);
             this.writeApiDatacode(apiSection);
@@ -77,13 +76,13 @@ export default class ApiOperation {
 import express from 'express';\n;
 import {${apiSection.apiList.reduce((acc: string, currVal) => {
             const inputName: string = (`${apiSection.name}_${currVal.name}_Input`).toUpperCase();
-            acc = acc + inputName + ',';
+            acc = acc + `${(Object.keys(currVal.input).length>0)?`${inputName},`:''}`;
             return acc
         }, '')}} from './api.data';
 export interface ${interfaceName} {
     ${apiSection.apiList.reduce((acc: string, currVal) => {
             const inputName: string = (`${apiSection.name}_${currVal.name}_Input`).toUpperCase();
-            acc = acc + `${currVal.name}(input: ${inputName}, res: express.Response):void\n\t`
+            acc = acc + `${currVal.name}( ${currVal.authenticated === true?`currentUser: any,`:``} ${Object.keys(currVal.input).length>0?`input: ${inputName},`:''} res: express.Response):void\n\t`
             return acc;
         }, '')
             }
@@ -105,20 +104,15 @@ ${apiCode}
             const inputKeyList = Object.keys(api.input);
             const outputKeyList = api.output ? Object.keys(api.output) : [];
             const inputDataTypeName: string = (`${apiSection.name}_${api.name}_Input`).toUpperCase();
+            const outputDataTypeName: string = (`${apiSection.name}_${api.name}_Output`).toUpperCase();
             acc = acc + `
-export class ${inputDataTypeName} {
-    ${inputKeyList.reduce((acc, inputKey) => {
-                acc = acc + `${inputKey}: ${api.input[inputKey].type};`
-                return acc
-            }, "")}
+${inputKeyList.length>0?`export class ${inputDataTypeName} {
+    
     constructor(${inputKeyList.reduce((acc, inputKey) => {
-                acc = acc + `${inputKey}: ${api.input[inputKey].type},`
+                acc = acc + `public ${inputKey}: ${api.input[inputKey].type},`
                 return acc
             }, "")}) {
-                ${inputKeyList.reduce((acc, inputKey) => {
-                acc = acc + `this.${inputKey}= ${inputKey};`
-                return acc
-            }, "")}
+                
     }
 
     static fromJSON(jsonObj: any) {
@@ -145,8 +139,27 @@ export class ${inputDataTypeName} {
             errorBody: error
         }
     }
+}`:''}
+
+${outputKeyList.length>0?`export class ${outputDataTypeName} {
+    constructor(${outputKeyList.reduce((acc, outputKey) => {
+        acc = acc + `public ${outputKey}: ${api.output[outputKey].type},`
+        return acc
+    }, "")}) {
+        
 }
-                `
+
+static fromJSON(jsonObj: any) {
+return new ${outputDataTypeName}(
+    ${outputKeyList.reduce((acc, outputKey) => {
+        acc = acc + `jsonObj?.${outputKey},`
+        return acc
+    }, "")}
+)    
+}
+}`:''}
+
+`
             return acc;
         }, "")
             }
@@ -177,7 +190,7 @@ export default class ${serviceName} implements ${interfaceName} {
     generateApiFunctionCodes(apiSection: IApiSection) {
         return apiSection.apiList.reduce((acc, api) => {
             const inputName: string = (`${apiSection.name}_${api.name}_Input`).toUpperCase();
-            acc = acc + `public async ${api.name}(input: ${inputName}, res: express.Response) {
+            acc = acc + `public async ${api.name}(${api.authenticated === true?'currentUser: any,':''}${Object.keys(api.input).length>0?`input: ${inputName},`:''} res: express.Response) {
                 try {
                     ${api.output && Object.keys(api.output).length>0?
                         `const projectionString = '${Object.keys(api.output).reduce((acc, cur) => {
@@ -204,7 +217,7 @@ export default class ${serviceName} implements ${interfaceName} {
     import verifyToken from '../middlewares/auth';
     ${apiSection.apiList.length > 0 ? `import {${apiSection.apiList.reduce((acc: string, currVal) => {
             const inputName: string = (`${apiSection.name}_${currVal.name}_Input`).toUpperCase();
-            acc = acc + inputName + ',';
+            acc =  acc + `${Object.keys(currVal.input).length>0?`${inputName + ','}`:``}`;
             return acc
         }, '')}} from '../services/${apiSection.name}/api.data';` : ''}
 
@@ -218,15 +231,26 @@ export default class ${serviceName} implements ${interfaceName} {
 
             ${apiSection.apiList.reduce((acc, currVal) => {
             const inputName: string = (`${apiSection.name}_${currVal.name}_Input`).toUpperCase();
+            
             acc = acc + `
                     this.app.route('/${this.getApiName(apiSection.name)}/${this.getApiName(currVal.name)}').${currVal.type}(${currVal.authenticated === true?'verifyToken,':''}async (req: express.Request, res: express.Response) => {
-                        const input: ${inputName} = ${inputName}.fromJSON(${currVal.type==ApiType.Get?'req.query':'req.body'});
-                        const defaultPreCondition = input.checkDefaultPreCondition();
-                        if(defaultPreCondition.isValid) {
-                        this.${serviceName}.${currVal.name}(input, res);
-                        } else {
-                            res.status(412).send(defaultPreCondition.errorBody)
+                        ${
+                            Object.keys(currVal.input).length>0?
+                            ` const input: ${inputName} = ${inputName}.fromJSON(${currVal.type==ApiType.Get?'req.query':'req.body'});
+                            const defaultPreCondition = input.checkDefaultPreCondition();
+                            if(defaultPreCondition.isValid) {
+                            this.${serviceName}.${currVal.name}(${currVal.authenticated === true?`(req as any).user,`:''}input, res);
+                            } else {
+                                res.status(412).send(defaultPreCondition.errorBody)
+                            }`
+                            :`
+                            
+                            this.${serviceName}.${currVal.name}(${currVal.authenticated === true?`(req as any).user,`:''}res);
+                            
+                            `
                         }
+                        
+                       
                     });`
             return acc;
         }, '')
@@ -243,6 +267,33 @@ export default class ${serviceName} implements ${interfaceName} {
 
     getApiName(apiName: string) {
         return apiName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();;
+    }
+
+    compileApiSection(apiSectionList: IApiSection[]) {
+        let errors: any[] = [];
+        apiSectionList.map(apiSection => {
+        return apiSection.apiList.map(api => {
+            const outputKeyList = Object.keys(api.output);
+            let missmatchedKeys = "";
+            const dataIndex = outputKeyList.findIndex((out: any) => {
+                const isIncluded = normalDataTypes.includes(api.output[out].type);
+                if(isIncluded) {
+                    missmatchedKeys = missmatchedKeys + api.output[out].type;
+                }
+                return isIncluded;
+            });
+            if(outputKeyList.length>0 && dataIndex==-1) {
+                errors.push({sectionName: apiSection.name, apiName: api.name,missmatchedKeys});
+            }
+        })
+        
+    })
+    console.log(errors,"errors")
+    // alert("Error in api")
+    errors.map(error => {
+        alert(`error in api section "${error.sectionName} ,api "${error.apiName}" by "${error.missmatchedKeys}"`)
+    })
+    return errors.length ===0;
     }
 
 

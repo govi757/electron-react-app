@@ -9,3 +9,13 @@ export const baseFileList:BaseFile[] =  [
      {fileName: "apiConfig.json",label: "Apis",type: "api"},
      {fileName: "dbConfig.json",label: "Collections",type: "collection"},
 ]
+
+export interface IBaseConfig {
+    name: string
+    frontendList:IFrontEnd[] 
+}
+
+export interface IFrontEnd {
+    name: string;
+    type: string;
+}

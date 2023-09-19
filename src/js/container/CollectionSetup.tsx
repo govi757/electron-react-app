@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ApiType, IApi, IApiSection } from "../interfaces/IApi";
+
 import GeneratorHelper from "../helper/GeneratorHelper";
 import IPreLoad from "../interfaces/IPreLoad";
 import {
@@ -8,16 +8,12 @@ import {
   AccordionSummary,
   Button,
   Card,
-  Chip,
   Dialog,
   DialogContent,
   DialogTitle,
-  Divider,
-  Typography,
 } from "@mui/material";
 import Form, { FieldType, FormSchema } from "../component/form/Form";
 import { Rules } from "../component/form/rules";
-import ApiForm from "./ApiForm";
 import { ICollection, IDataBase } from "../interfaces/ICollection";
 import { DeleteOutline, EditOutlined } from "@mui/icons-material";
 import { CollectionForm } from "./CollectionForm";
@@ -29,7 +25,6 @@ export default function CollectionSetup() {
   const [formType, setFormType] = React.useState("");
   const [selectedDbIndex, setSelectedDbIndex] = useState(0);
   const [selectedCollectionForEdit, setSelectedCollectionForEdit] = useState<ICollection>();
-  // const [collectionForm, setCollectionForm] = React.useState("");
 
   useEffect(() => {
     getDatabaseList();
@@ -78,7 +73,6 @@ export default function CollectionSetup() {
   }
 
   const handleAddCollectionData = async (collectionData: ICollection) => {
-    console.log(collectionData,"CollectionData")
     const addedCollection = {...collectionData};
     addedCollection.fields = collectionData.fields;
     dbConfigList[selectedDbIndex].collectionList = [
@@ -90,7 +84,6 @@ export default function CollectionSetup() {
   }
 
   const handleEditCollectionData = (collectionData: ICollection) => {
-    console.log(collectionData,"CollectionData")
     const addedCollection = {...collectionData};
     const selectedCollectionIndexForEdit = dbConfigList[selectedDbIndex].collectionList.findIndex(item => item.name === selectedCollectionForEdit?.name);
     if(selectedCollectionIndexForEdit !== -1) {
@@ -176,11 +169,11 @@ export default function CollectionSetup() {
               <AccordionSummary>
                 <div className="d-flex w-100">
                   <div className="flex-fill">{dbConfig.dbName}</div>
-                  <Button onClick={() => handleEditDbNameClick(index)}>
-                    <EditOutlined />
+                  <Button size="small" onClick={() => handleEditDbNameClick(index)}>
+                    <EditOutlined fontSize="small" />
                   </Button>
-                  <Button onClick={() => deleteDataBase(index)}>
-                    <DeleteOutline />
+                  <Button size="small" onClick={() => deleteDataBase(index)}>
+                    <DeleteOutline fontSize="small"/>
                   </Button>
                 </div>
               </AccordionSummary>

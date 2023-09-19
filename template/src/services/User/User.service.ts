@@ -3,7 +3,7 @@ import express from 'express';
 
 import { IUserApi } from './api.interface';
 
-import { USER_SIGNUP_INPUT, USER_LOGIN_INPUT, USER_GETUSERDETAILS_INPUT, } from './api.data';
+import { USER_SIGNUP_INPUT, USER_LOGIN_INPUT, } from './api.data';
 import User from '../../models/User/User.model';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -34,9 +34,8 @@ export default class UserService implements IUserApi {
         }
     }
     public async Login(input: USER_LOGIN_INPUT, res: express.Response) {
-        const secretKey = process.env.JWT_SECRET_KEY; 
+        const secretKey = process.env.JWT_SECRET_KEY || "vadhyan-admin"; 
         try {
-            console.log(secretKey,"secretKey")
             const user = await User.findOne({emailId: input.emailId});
             if (!user) {
                 return res.status(400).json({ message: 'User not found' });

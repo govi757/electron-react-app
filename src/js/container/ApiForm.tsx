@@ -4,6 +4,7 @@ import { Rules } from "../component/form/rules";
 import { ApiType, DataTypes, IApi, IApiSection } from "../interfaces/IApi";
 import { Button } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
+import { normalDataTypes } from "../datas/constants";
 export default function ApiForm({
   apiAdded,
   api,
@@ -42,8 +43,14 @@ export default function ApiForm({
           }, [])
         : [];
       setApiOutputList(outputList);
+
+      getAllDataTypes()
     }
   }, []);
+
+  const getAllDataTypes = () => {
+
+  }
 
   const inputFormRefList = useRef<any[]>([]);
 
@@ -63,7 +70,6 @@ export default function ApiForm({
     ]);
   };
   const handleApiFormSubmit = () => {
-    console.log(inputFormRefList, "inputFormRefList");
     let isValidInput = true;
     let isValidOutput = true;
     inputFormRefList.current.forEach((item) => {
@@ -74,7 +80,6 @@ export default function ApiForm({
       if (item) isValidOutput = item.validateAndSetError();
     });
 
-    console.log(isValidInput, isValidOutput,"Validity")
 
     if (isValidInput && isValidOutput) {
       apiForm.input = apiInputList.reduce((acc: any, currVal) => {
@@ -86,7 +91,6 @@ export default function ApiForm({
         acc[currVal.name] = {type: currVal.type, required: currVal.required};
         return acc;
       }, {});
-      console.log(apiForm, "input");
       apiAdded(apiForm);
     }
     // inputFormRefList.current.forEach((item) => {
@@ -96,7 +100,6 @@ export default function ApiForm({
     //       acc[currVal.name] = currVal.type;
     //       return acc;
     //     }, {});
-    //     console.log(apiForm, "input");
     //     apiAdded(apiForm);
     //   }
     // });
@@ -232,9 +235,9 @@ const apiInputFormScehma: FormSchema = {
       dataSelectorKey: "type",
       label: "Type",
       rules: [Rules.Required],
-      type: FieldType.Select,
+      type: FieldType.Autocomplete,
       boundaryClass: "col-4 me-1",
-      options: ["string", "number", "object", "date","any","string[]","object[]","any[]",],
+      options: normalDataTypes,
     },
     {
       dataSelectorKey: "required",

@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Button,
   Checkbox,
   FormControl,
@@ -27,20 +28,24 @@ export default React.forwardRef(function Form({
   const [error, setError] = useState<any>({});
 
   const handleInputChange = (event: any, dataSelectorKey: string) => {
-    console.log(event,"Event value")
     value[dataSelectorKey] = event.target.value;
     if (onInput) onInput({ ...value });
   };
 
+  const handleAutoCompleteChange = (event: any, dataSelectorKey: string) => {
+    console.log(event);
+    value[dataSelectorKey] = event;
+    if (onInput) onInput({ ...value });
+  };
+
+
   const handleCheckboxChange = (event: any, dataSelectorKey: string) => {
-    console.log(event,"Event value")
     value[dataSelectorKey] = event.target.checked;
     if (onInput) onInput({ ...value });
   };
 
 
   const handleObjectInputChange = (event: any, dataSelectorKey: string) => {
-    console.log(event,"Event value")
     value[dataSelectorKey] = event.target.value;
     if (onInput) onInput({ ...value });
   };
@@ -210,7 +215,7 @@ export default React.forwardRef(function Form({
 
               case FieldType.CheckBox:
                 return(
-                  <div className={`my-2 ${field.boundaryClass || "col-4"}`}>
+                  <div key={field.dataSelectorKey} className={`my-2 ${field.boundaryClass || "col-4"}`}>
                   <Checkbox
                   className={"mx-1"}
                   checked={value[field.dataSelectorKey]}
@@ -222,6 +227,26 @@ export default React.forwardRef(function Form({
                   {field.label}
                   </div>
                 )
+
+              case FieldType.Autocomplete: 
+              return(
+                <div className={`my-2 ${field.boundaryClass || "col-4"}`} key={field.dataSelectorKey}>
+                <Autocomplete
+                  size="small"
+                  autoComplete
+                  includeInputInList
+                  id="auto-complete"
+                  fullWidth
+                  options={field.options || []}
+                  value={value[field.dataSelectorKey]}
+                  onChange={(event, val)  =>
+                    handleAutoCompleteChange(val, field.dataSelectorKey)
+                  }
+                  renderInput={(params) => <TextField
+                    {...params} label="Movie" />}
+                  />
+                  </div>
+              )  
             default:
               return (
                 <TextField
@@ -304,7 +329,8 @@ export enum FieldType {
   TextArea = "TextArea",
   Select = "Select",
   ObjectTextArea="ObjectTextArea",
-  CheckBox="CheckBox"
+  CheckBox="CheckBox",
+  Autocomplete="Autocomplete"
 }
 
 export enum BtnType {

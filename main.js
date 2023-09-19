@@ -62,12 +62,17 @@ ipcMain.on("create-file", async (event, path, fileName, content) => {
 });
 
 ipcMain.on("write-file", (event, path, fileName, content = "{}") => {
+  try {
+  console.log(path,"path is this")
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path, { recursive: true });
   }
 
   const filePath = path + "/" + fileName;
   fs.writeFileSync(filePath, content);
+} catch(e) {
+  console.log(e)
+}
 });
 
 ipcMain.handle("open-folder", async (event, message) => {
@@ -105,6 +110,26 @@ ipcMain.handle("copy-base-folder", async (event, destUrl) => {
   //   }
   //   console.log(jsonString);
   const sourceStaticFolder = path.join(__dirname, "template");
+  //   const destUrl = `${dest}/${json.name}`
+  console.log(destUrl, "Dest  url is this");
+  if (!fs.existsSync(destUrl)) {
+    fs.cpSync(sourceStaticFolder, destUrl, { recursive: true });
+  }
+  // });
+});
+
+
+ipcMain.handle("copy-frontend-base-folder", async (event, destUrl) => {
+  // const filePath = `${dest}/baseConfig.json`
+  // console.log(filePath,"filePath")
+  // fs.readFile(filePath,'utf8',(err, jsonString) => {
+  //   const json = JSON.parse(jsonString);
+  //   if (err) {
+  //     console.log("File read failed:", err);
+  //     return;
+  //   }
+  //   console.log(jsonString);
+  const sourceStaticFolder = path.join(__dirname, "frontendTemplate");
   //   const destUrl = `${dest}/${json.name}`
   console.log(destUrl, "Dest  url is this");
   if (!fs.existsSync(destUrl)) {
