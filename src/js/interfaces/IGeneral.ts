@@ -18,4 +18,24 @@ export interface IBaseConfig {
 export interface IFrontEnd {
     name: string;
     type: string;
+    screenList: IScreen[]
+    layout: ILayout[]
+}
+
+export interface IScreen {
+    name:string,
+    path:string
+}
+
+export interface ILayout {
+    name:string,
+    route:string,
+    children: ILayout[],
+    element?: string;
+}
+
+export interface IElement {
+    element: string;
+    route: string;
+    name: string;
 }

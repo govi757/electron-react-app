@@ -10,18 +10,15 @@ contextBridge.exposeInMainWorld("electron", {
   },
   filesApi: {
     writeFile(src, fileName, content) {
-      console.log("Write file");
       // const filePath = `${src}/${fileName}`;
       ipcRenderer.send("write-file", src, fileName,content);
     },
     createFile(src, fileName,content="{}") {
-      console.log("Create file");
       // const filePath = `${src}/${fileName}`;
       ipcRenderer.send("create-file", src, fileName,content);
     },
     readFile(src, fileName, res=() => {}) {
       const filePath = `${src}/${fileName}`;
-      console.log(filePath,"filePath")
       return ipcRenderer.invoke("read-file", filePath)
     },
     openFolder(res = () => {}) {

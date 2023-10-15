@@ -243,7 +243,7 @@ export default React.forwardRef(function Form({
                     handleAutoCompleteChange(val, field.dataSelectorKey)
                   }
                   renderInput={(params) => <TextField
-                    {...params} label="Movie" />}
+                    {...params} label={field.label} />}
                   />
                   </div>
               )  

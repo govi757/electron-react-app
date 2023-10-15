@@ -1,4 +1,4 @@
-import { IBaseConfig } from "../interfaces/IGeneral";
+import { IBaseConfig, IFrontEnd } from "../interfaces/IGeneral";
 import IPreLoad from "../interfaces/IPreLoad"
 
 const electron: IPreLoad = ((window as any).electron as IPreLoad) || {}
@@ -45,9 +45,9 @@ export default class GeneratorHelper {
 
     public static createFrontEndFile() {
         const selectedProjectPath: string = localStorage.getItem('selectedProjectPath') || '';
-        electron.filesApi.readFile(selectedProjectPath, 'baseConfig.json',).then(jsonString => {
-            const basicJson:IBaseConfig = JSON.parse(jsonString);
-        basicJson.frontendList.forEach(frontend => {
+        electron.filesApi.readFile(selectedProjectPath, 'frontEndConfig.json',).then(jsonString => {
+            const basicJson:IFrontEnd[] = JSON.parse(jsonString);
+        basicJson.forEach(frontend => {
             const projectPath = `${selectedProjectPath}/frontend/${frontend.name}`;
             electron.filesApi.copyFrontEndFolder(projectPath)
         })
@@ -57,9 +57,9 @@ export default class GeneratorHelper {
 
     public static getFrontEndPathList(cb: (projectPath: string[]) => void) {
         const selectedProjectPath: string = localStorage.getItem('selectedProjectPath') || '';
-        electron.filesApi.readFile(selectedProjectPath, 'baseConfig.json',).then(jsonString => {
-            const basicJson:IBaseConfig = JSON.parse(jsonString);
-        cb(basicJson.frontendList.map(item => `${selectedProjectPath}/frontend/${item.name}`));
+        electron.filesApi.readFile(selectedProjectPath, 'frontEndConfig.json',).then(jsonString => {
+            const basicJson:IFrontEnd[] = JSON.parse(jsonString);
+        cb(basicJson.map(item => `${selectedProjectPath}/frontend/${item.name}`));
     })
     }
 

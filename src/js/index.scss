@@ -10,3 +10,10 @@ $nav-pills-link-active-color:#0e387a;
     cursor: pointer;
     text-decoration: none;
 }
+
+.context-menu {
+    position: fixed;
+    z-index: 999;
+    background-color: #fff;
+    border:1px solid #000;
+}

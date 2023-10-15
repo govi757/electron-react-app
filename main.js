@@ -63,7 +63,6 @@ ipcMain.on("create-file", async (event, path, fileName, content) => {
 
 ipcMain.on("write-file", (event, path, fileName, content = "{}") => {
   try {
-  console.log(path,"path is this")
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path, { recursive: true });
   }
@@ -93,9 +92,7 @@ ipcMain.handle("open-folder", async (event, message) => {
 });
 
 ipcMain.handle("read-dir", async (event, src) => {
-  console.log(src, "PAth is this");
   const response = await fs.readdirSync(src);
-  console.log(response, "response");
   return response;
 });
 
@@ -131,7 +128,6 @@ ipcMain.handle("copy-frontend-base-folder", async (event, destUrl) => {
   //   console.log(jsonString);
   const sourceStaticFolder = path.join(__dirname, "frontendTemplate");
   //   const destUrl = `${dest}/${json.name}`
-  console.log(destUrl, "Dest  url is this");
   if (!fs.existsSync(destUrl)) {
     fs.cpSync(sourceStaticFolder, destUrl, { recursive: true });
   }
@@ -145,7 +141,6 @@ ipcMain.handle("read-file", async (event, src) => {
         console.log("File read failed:", err);
         res("{}");
       }
-      console.log("File data:", jsonString);
       res(jsonString);
     });
   });
@@ -155,7 +150,6 @@ ipcMain.handle("read-file", async (event, src) => {
 
 ipcMain.handle("is-file-exist", async (event, src) => {
   const response = await fs.existsSync(src);
-  console.log(response, "response");
   return response;
 });
 

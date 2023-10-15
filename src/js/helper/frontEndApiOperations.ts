@@ -25,7 +25,6 @@ export default class FrontEndApiOperation {
         const sliceCode: string = this.generateSliceCode(apiSection)
         const fileName = `${apiSection.name}Slice.ts`
         this.frontEndPathList.forEach(frontEndPath => {
-            console.log(frontEndPath,"frontEndPath")
             const slicePath = `${frontEndPath}/src/redux/store/${apiSection.name.toLowerCase()}`;
             GeneratorHelper.writeFile(slicePath, fileName, sliceCode);
         })
@@ -35,7 +34,6 @@ export default class FrontEndApiOperation {
         const code = this.generateApiDatacode(apiSection);
         const fileName = `data.ts`;
         this.frontEndPathList.forEach(frontEndPath => {
-            console.log(frontEndPath,"frontEndPath")
             const slicePath = `${frontEndPath}/src/redux/store/${apiSection.name.toLowerCase()}`;
             GeneratorHelper.writeFile(slicePath, fileName, code);
         })
@@ -45,7 +43,6 @@ export default class FrontEndApiOperation {
         const code = this.generateApiActioncode(apiSection);
         const fileName = 'action.ts';
         this.frontEndPathList.forEach(frontEndPath => {
-            console.log(frontEndPath,"frontEndPath")
             const slicePath = `${frontEndPath}/src/redux/store/${apiSection.name.toLowerCase()}`;
             GeneratorHelper.writeFile(slicePath, fileName, code);
         })
@@ -56,7 +53,6 @@ export default class FrontEndApiOperation {
         const code = this.generateReducersCode(apiSectionList);
         const fileName = 'generatedReducers.ts';
         this.frontEndPathList.forEach(frontEndPath => {
-            console.log(frontEndPath,"frontEndPath")
             const slicePath = `${frontEndPath}/src/redux/store`;
             GeneratorHelper.writeFile(slicePath, fileName, code);
         })
@@ -73,45 +69,44 @@ export default class FrontEndApiOperation {
             acc = acc + `
 ${inputKeyList.length>0?`export class ${inputDataTypeName} {
     
-    constructor(${inputKeyList.reduce((acc, inputKey) => {
-                acc = acc + `public ${inputKey}: ${api.input[inputKey].type},`
-                return acc
-            }, "")}) {
+constructor(${inputKeyList.reduce((acc, inputKey) => {
+        acc = acc + `public ${inputKey}: ${api.input[inputKey].type},`
+        return acc
+    }, "")}) {
                 
-    }
+}
 
-    static fromJSON(jsonObj: any) {
-        return new ${inputDataTypeName}(
-            ${inputKeyList.reduce((acc, inputKey) => {
-                acc = acc + `jsonObj?.${inputKey},`
-                return acc
-            }, "")}
-        )    
-    }
-    public toJson(): object {
-        return {
-          ${inputKeyList.reduce((acc, inputKey) => {
-            acc = acc + `\n${inputKey}: this.${inputKey}!= null? this.${inputKey}:undefined,`
+static fromJSON(jsonObj: any) {
+    return new ${inputDataTypeName}(
+        ${inputKeyList.reduce((acc, inputKey) => {
+            acc = acc + `jsonObj?.${inputKey},`
             return acc
         }, "")}
-        }
+    )    
+}
+public toJson(): object {
+    return {
+        ${inputKeyList.reduce((acc, inputKey) => {
+        acc = acc + `\n${inputKey}: this.${inputKey}!= null? this.${inputKey}:undefined,`
+        return acc
+    }, "")}
     }
+}
 }`:''}
 
 ${outputKeyList.length>0?`export class ${outputDataTypeName} {
-    constructor(${outputKeyList.reduce((acc, outputKey) => {
-        acc = acc + `public ${outputKey}: ${api.output[outputKey].type},`
-        return acc
-    }, "")}) {
-        
+constructor(${outputKeyList.reduce((acc, outputKey) => {
+    acc = acc + `public ${outputKey}: ${api.output[outputKey].type},`
+    return acc
+}, "")}) {        
 }
 
 static fromJSON(jsonObj: any) {
 return new ${outputDataTypeName}(
     ${outputKeyList.reduce((acc, outputKey) => {
-        acc = acc + `jsonObj?.${outputKey},`
-        return acc
-    }, "")}
+    acc = acc + `jsonObj?.${outputKey},`
+    return acc
+}, "")}
 )    
 }
 
@@ -125,7 +120,6 @@ public toJson(): object {
 }
 
 }`:''}
-
 `
             return acc;
         }, "")
@@ -137,56 +131,56 @@ public toJson(): object {
 
     generateSliceCode(apiSection: IApiSection) {
         const code = `
-        import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-        import {${
-            apiSection.apiList.reduce((acc, curVal) => {
-                acc = acc + `${curVal.name},`
-                return acc
-            },'')
-        }} from './action';
-        interface ${apiSection.name}State {
-            ${apiSection.apiList.reduce((acc, curVal) => {
-                acc = acc + `${curVal.name}Output: any,\n${curVal.name}Loading: boolean,\n${curVal.name}Error: string | null,\n`
-                return acc
-            },"")}
-        }
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {${
+    apiSection.apiList.reduce((acc, curVal) => {
+        acc = acc + `${curVal.name},`
+        return acc
+    },'')
+}} from './action';
+interface ${apiSection.name}State {
+    ${apiSection.apiList.reduce((acc, curVal) => {
+        acc = acc + `${curVal.name}Output: any,\n${curVal.name}Loading: boolean,\n${curVal.name}Error: string | null,\n`
+        return acc
+    },"")}
+}
 
-        const initialState: ${apiSection.name}State = {
-            ${apiSection.apiList.reduce((acc, curVal) => {
-                acc = acc + `${curVal.name}Output: null,\n${curVal.name}Loading: false,\n${curVal.name}Error: null,\n`
-                return acc
-            },"")}
-        }
+const initialState: ${apiSection.name}State = {
+    ${apiSection.apiList.reduce((acc, curVal) => {
+        acc = acc + `${curVal.name}Output: null,\n${curVal.name}Loading: false,\n${curVal.name}Error: null,\n`
+        return acc
+    },"")}
+}
 
-        export const ${apiSection.name}Slice = createSlice({
-            name: "${apiSection.name}",
-            initialState,
-            reducers: {}, 
-            extraReducers: (builder) =>{
-                builder.
-                ${apiSection.apiList.reduce((acc, curVal,currentIndex) => {
-                    console.log(currentIndex,"CcurrentIndex")
-                    acc = acc + `addCase(${curVal.name}.pending, state => {
-                        state.${curVal.name}Loading= true;
-                        state.${curVal.name}Error= null;
-                    }).addCase(${curVal.name}.fulfilled,(state, action) => {
-                        state.${curVal.name}Loading = false;
-                        state.${curVal.name}Output = action.payload;
-                        state.${curVal.name}Error = null;
-                    }).addCase(${curVal.name}.rejected, (state, action) => {
-                        state.${curVal.name}Loading = false;
-                        state.${curVal.name}Output = null;
-                        state.${curVal.name}Error = action.payload as string;
-                      })${currentIndex<apiSection.apiList.length-1?'.':''}`
-                    return acc
-                },"")}
-
-            }
-        });
+export const ${apiSection.name}Slice = createSlice({
+    name: "${apiSection.name}",
+    initialState,
+    reducers: {
+        reset${apiSection.name}Reducer: () => initialState
+    }, 
+    extraReducers: (builder) =>{
+        builder.
+        ${apiSection.apiList.reduce((acc, curVal,currentIndex) => {
+                acc = acc + `addCase(${curVal.name}.pending, state => {
+                state.${curVal.name}Loading= true;
+                state.${curVal.name}Error= null;
+            })\n\t\t.addCase(${curVal.name}.fulfilled,(state, action) => {
+                state.${curVal.name}Loading = false;
+                state.${curVal.name}Output = action.payload;
+                state.${curVal.name}Error = null;
+            })\n\t\t.addCase(${curVal.name}.rejected, (state, action) => {
+                state.${curVal.name}Loading = false;
+                state.${curVal.name}Output = null;
+                state.${curVal.name}Error = action.payload as string;
+                })\n\t\t${currentIndex<apiSection.apiList.length-1?'.':''}`
+            return acc
+        },"")}
+    }
+});
         
-        export default ${apiSection.name}Slice.reducer;
+export const {reset${apiSection.name}Reducer} = ${apiSection.name}Slice.actions;
+export default ${apiSection.name}Slice.reducer;
         `
-
         return code;
     }
 
@@ -213,7 +207,7 @@ public toJson(): object {
             acc = acc + `
             export const ${curVal.name} = createAsyncThunk('${apiSection.name}/${curVal.name}', async (${inputKeyList.length>0?`input: ${inputDataTypeName}`:`_`}, { rejectWithValue }) => {
                 try {
-                  const { data } = await api.${curVal.type}('${this.getApiName(apiSection.name)}/${this.getApiName(curVal.name)}',${inputKeyList.length>0?'input':''});
+                  const { data } = await api.${curVal.type}('${this.getApiName(apiSection.name)}/${this.getApiName(curVal.name)}',${inputKeyList.length>0?`${curVal.type=='post'?'input':'{params: input.toJson()}'}`:''});
                   return data;
                 } catch (error: any) {
                   return rejectWithValue(error.message);

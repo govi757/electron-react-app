@@ -9,7 +9,7 @@ import ApiOperation from "../helper/apiOperations";
 import { IApiSection } from "../interfaces/IApi";
 import CollectionOperation from "../helper/collectionOperations";
 import { ICollection, IDataBase } from "../interfaces/ICollection";
-import { baseFileList } from "../interfaces/IGeneral";
+import { IFrontEnd, baseFileList } from "../interfaces/IGeneral";
 import Tab, { ITab } from "../component/generic/tab";
 import BasicProjectSetup from "./BasicProjectSetup";
 import ApiSetup from "./ApiSetup";
@@ -19,6 +19,8 @@ import DataSetup from "./DataSetup";
 import { IData } from "../interfaces/IData";
 import DataTypeOperations from "../helper/dataTypeOperations";
 import FrontEndApiOperation from "../helper/frontEndApiOperations";
+import FrontEndScreenOperation from "../helper/frontEndScreenOperations";
+import FrontEndSetup from "./FrontEndSetup";
 
 // const tabList: ITab[] = [
 //     {
@@ -44,19 +46,21 @@ export default function WorkspaceArea() {
   const [apiOperation] = useState(() => new ApiOperation());
   const [dataTypeOperation] = useState(() => new DataTypeOperations());
   const [frontEndApiOperation] = useState(() => new FrontEndApiOperation());
-  
+
   useEffect(() => {
     getFileList();
   }, []);
 
   const getFileList = () => {
     const selectedProjectPath = GeneratorHelper.getProjectPath() || "";
-    const tempTabList = [  {
-      name: "Basic Setup",
-      component: <BasicProjectSetup />,
-      key: "basicSetup",
-    },];
-    SetTabList([...tempTabList])
+    const tempTabList = [
+      {
+        name: "Basic Setup",
+        component: <BasicProjectSetup />,
+        key: "basicSetup",
+      },
+    ];
+    SetTabList([...tempTabList]);
 
     electron.filesApi.readDir(selectedProjectPath, (res: any) => {
       const fileList = res
@@ -89,6 +93,14 @@ export default function WorkspaceArea() {
             });
           }
 
+          if (item === "frontEndConfig.json") {
+            tempTabList.push({
+              name: "FrontEnd",
+              component: <FrontEndSetup />,
+              key: "frontEnd",
+            });
+          }
+
           SetTabList([...tempTabList]);
         });
 
@@ -100,35 +112,46 @@ export default function WorkspaceArea() {
     const selectedProjectPath = GeneratorHelper.getProjectPath() || "";
     electron.filesApi
       .readFile(selectedProjectPath, file)
-      .then((dataString: any) => {
-      });
+      .then((dataString: any) => {});
   };
 
   const buildProject = async () => {
     if (confirm("Are you sure want to build the project")) {
       GeneratorHelper.copyBaseFolderStructure();
       GeneratorHelper.createFrontEndFile();
-      
+
       await initializeProject();
-      buildApiServiceCode();
-      buildCollectionCode();
-      buildDataCode();
+
       setTimeout(() => {
         getFileList();
+        buildApiServiceCode();
+        buildCollectionCode();
+        buildDataCode();
+        buildFrontEndScreens();
       }, 1000);
     }
+  };
+  const buildFrontEndScreens = () => {
+    const path = GeneratorHelper.getProjectPath() || "";
+    electron.filesApi
+      .readFile(path, "frontEndConfig.json")
+      .then((dataString: string) => {
+        const frontEndList: IFrontEnd[] = JSON.parse(dataString);
+
+        FrontEndScreenOperation.buildFrontEnd(frontEndList);
+      });
   };
 
   const buildDataCode = () => {
     const path = GeneratorHelper.getProjectPath() || "";
-    console.log(path,"path")
+    console.log(path, "path");
     electron.filesApi
       .readFile(path, "dataConfig.json")
       .then((dataString: string) => {
         const apiSectionList: IData[] = JSON.parse(dataString);
         dataTypeOperation.buildDataCode(apiSectionList);
       });
-  }
+  };
 
   const initializeProject = () => {
     const path = GeneratorHelper.getProjectPath() || "";
@@ -229,12 +252,9 @@ export default function WorkspaceArea() {
       JSON.stringify(dbConfigJson)
     );
 
-    GeneratorHelper.createFile(
-      path,
-      "dataConfig.json",
-      "[]"
-    );
-    
+    GeneratorHelper.createFile(path, "dataConfig.json", "[]");
+
+    GeneratorHelper.createFile(path, "frontEndConfig.json", "[]");
   };
 
   const buildCollectionCode = () => {
@@ -254,12 +274,12 @@ export default function WorkspaceArea() {
       .then((dataString: string) => {
         const apiSectionList: IApiSection[] = JSON.parse(dataString);
         apiOperation.buildApiServiceCode(apiSectionList);
-        frontEndApiOperation.buildFrontEndCode(apiSectionList)
+        frontEndApiOperation.buildFrontEndCode(apiSectionList);
       });
   };
 
   return (
-    <div className=" d-flex  ">
+    <div className=" d-flex  mainScreen">
       {/* <div className="px-4 col-3 py-3 card">
         {fileList.map((file: any) => {
           return (
