@@ -58,6 +58,23 @@ export default class FrontEndApiOperation {
         })
     }
 
+    getDefaultValue(type: string, required: boolean) {
+        console.log(type, required,"Required, Type............................")
+        if(required==false) {
+            return "undefined"
+        } else {
+        if(type=="string") {
+            return "''"
+        } else if(type=="number") {
+            return "0"
+        } else if(type=="object") {
+            return "{}"
+        } else {
+            return null
+        }
+    }
+    }
+
 
     generateApiDatacode(apiSection: IApiSection) {
         const code = `
@@ -70,7 +87,7 @@ export default class FrontEndApiOperation {
 ${inputKeyList.length>0?`export class ${inputDataTypeName} {
     
 constructor(${inputKeyList.reduce((acc, inputKey) => {
-        acc = acc + `public ${inputKey}: ${api.input[inputKey].type},`
+        acc = acc + `public ${inputKey}: ${api.input[inputKey].type} ${api.input[inputKey].required==false?"|undefined":""}=${this.getDefaultValue(api.input[inputKey].type,api.input[inputKey]?.required)},`
         return acc
     }, "")}) {
                 
@@ -96,7 +113,7 @@ public toJson(): object {
 
 ${outputKeyList.length>0?`export class ${outputDataTypeName} {
 constructor(${outputKeyList.reduce((acc, outputKey) => {
-    acc = acc + `public ${outputKey}: ${api.output[outputKey].type},`
+    acc = acc + `public ${outputKey}: ${api.output[outputKey].type}${api.output[outputKey]?.required==false?"|undefined":""}=${this.getDefaultValue(api.output[outputKey].type,api.output[outputKey]?.required)},`
     return acc
 }, "")}) {        
 }
@@ -110,7 +127,7 @@ return new ${outputDataTypeName}(
 )    
 }
 
-public toJson(): object {
+public toJson(): I_${outputDataTypeName} {
     return {
       ${outputKeyList.reduce((acc, outputKey) => {
         acc = acc + `\n${outputKey}: this.${outputKey}!= null? this.${outputKey}:undefined,`
@@ -120,6 +137,16 @@ public toJson(): object {
 }
 
 }`:''}
+
+
+${outputKeyList.length>0?`export interface I_${outputDataTypeName} {
+    ${outputKeyList.reduce((acc, outputKey) => {
+        acc = acc + ` ${outputKey}: ${api.output[outputKey].type}${api.output[outputKey]?.required==false?"|undefined":""};`
+        return acc
+    }, "")}
+    }`:''}
+
+
 `
             return acc;
         }, "")
@@ -134,20 +161,29 @@ public toJson(): object {
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {${
     apiSection.apiList.reduce((acc, curVal) => {
-        acc = acc + `${curVal.name},`
+        acc = acc + `${curVal.name}AsyncThunk,`
         return acc
     },'')
 }} from './action';
+
+import {${
+    apiSection.apiList.reduce((acc, curVal) => {
+        acc = acc + `${Object.keys(curVal.output).length>0?`I_${apiSection.name.toUpperCase()}_${curVal.name.toUpperCase()}_OUTPUT,${apiSection.name.toUpperCase()}_${curVal.name.toUpperCase()}_OUTPUT,`:""}`
+        return acc
+    },'')
+}} from './data';
+import { ApiStatus } from "src/data/common";
 interface ${apiSection.name}State {
     ${apiSection.apiList.reduce((acc, curVal) => {
-        acc = acc + `${curVal.name}Output: any,\n${curVal.name}Loading: boolean,\n${curVal.name}Error: string | null,\n`
+        console.log(curVal.output,"Output current value.............................")
+        acc = acc + `${curVal.name}Output: ${Object.keys(curVal.output).length>0?`I_${apiSection.name.toUpperCase()}_${curVal.name.toUpperCase()}_OUTPUT${curVal.isOutputArray?'[]':''}`:"any"},\n${curVal.name}Status: ApiStatus,\n${curVal.name}Error: string | null,\n`
         return acc
     },"")}
 }
 
 const initialState: ${apiSection.name}State = {
     ${apiSection.apiList.reduce((acc, curVal) => {
-        acc = acc + `${curVal.name}Output: null,\n${curVal.name}Loading: false,\n${curVal.name}Error: null,\n`
+        acc = acc + `${curVal.name}Output: ${curVal.isOutputArray?'[]': Object.keys(curVal.output).length>0?`new ${apiSection.name.toUpperCase()}_${curVal.name.toUpperCase()}_OUTPUT().toJson()`:"null"},\n${curVal.name}Status: ApiStatus.Idle,\n${curVal.name}Error: null,\n`
         return acc
     },"")}
 }
@@ -161,16 +197,16 @@ export const ${apiSection.name}Slice = createSlice({
     extraReducers: (builder) =>{
         builder.
         ${apiSection.apiList.reduce((acc, curVal,currentIndex) => {
-                acc = acc + `addCase(${curVal.name}.pending, state => {
-                state.${curVal.name}Loading= true;
+                acc = acc + `addCase(${curVal.name}AsyncThunk.pending, state => {
+                state.${curVal.name}Status= ApiStatus.Loading;
                 state.${curVal.name}Error= null;
-            })\n\t\t.addCase(${curVal.name}.fulfilled,(state, action) => {
-                state.${curVal.name}Loading = false;
+            })\n\t\t.addCase(${curVal.name}AsyncThunk.fulfilled,(state, action) => {
+                state.${curVal.name}Status = ApiStatus.Success;
                 state.${curVal.name}Output = action.payload;
                 state.${curVal.name}Error = null;
-            })\n\t\t.addCase(${curVal.name}.rejected, (state, action) => {
-                state.${curVal.name}Loading = false;
-                state.${curVal.name}Output = null;
+            })\n\t\t.addCase(${curVal.name}AsyncThunk.rejected, (state, action) => {
+                state.${curVal.name}Status = ApiStatus.Failed;
+                state.${curVal.name}Output = ${curVal.isOutputArray?'[]': Object.keys(curVal.output).length>0?`new ${apiSection.name.toUpperCase()}_${curVal.name.toUpperCase()}_OUTPUT().toJson()`:"null"};
                 state.${curVal.name}Error = action.payload as string;
                 })\n\t\t${currentIndex<apiSection.apiList.length-1?'.':''}`
             return acc
@@ -205,14 +241,22 @@ export default ${apiSection.name}Slice.reducer;
             const inputDataTypeName: string = (`${apiSection.name}_${curVal.name}_Input`).toUpperCase();
             const outputDataTypeName: string = (`${apiSection.name}_${curVal.name}_Output`).toUpperCase();
             acc = acc + `
-            export const ${curVal.name} = createAsyncThunk('${apiSection.name}/${curVal.name}', async (${inputKeyList.length>0?`input: ${inputDataTypeName}`:`_`}, { rejectWithValue }) => {
+            export const ${curVal.name}AsyncThunk = createAsyncThunk('${apiSection.name}/${curVal.name}', async (${inputKeyList.length>0?`input: ${inputDataTypeName}`:`_`}, { rejectWithValue }) => {
+                return ${curVal.name}Api(${inputKeyList.length>0?`input,`:''} output => {
+                    return output
+                  },error=> {
+                    return rejectWithValue(error)
+                  })
+              })
+
+              export const ${curVal.name}Api = async (${inputKeyList.length>0?`input: ${inputDataTypeName},`:``} output: (output: ${outputKeyList.length>0?curVal.isOutputArray?`${outputDataTypeName}[]`:outputDataTypeName:'any'}) => any,error: (errMsg: any) => void) => {
                 try {
                   const { data } = await api.${curVal.type}('${this.getApiName(apiSection.name)}/${this.getApiName(curVal.name)}',${inputKeyList.length>0?`${curVal.type=='post'?'input':'{params: input.toJson()}'}`:''});
-                  return data;
-                } catch (error: any) {
-                  return rejectWithValue(error.message);
+                  return output(data);
+                } catch (err: any) {
+                    return error(err.message);
                 }
-              })
+              }
             `
             return acc
         },'')}

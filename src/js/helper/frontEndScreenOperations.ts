@@ -28,7 +28,6 @@ export default class FrontEndScreenOperation {
         const path = `${projectPath}/frontend/${frontEnd.name}/src/router`;
         let innerRouterCode = ``;
             this.generateRouterImportCode(frontEnd)
-            console.log(frontEnd.layout,"Layout is this")
             
             frontEnd.layout.forEach(frontEndLayout => {
                 innerRouterCode = innerRouterCode + `{
@@ -38,8 +37,7 @@ export default class FrontEndScreenOperation {
                     children: ${this.generateRouterCode(frontEndLayout.children)}
                     `:``}
                 },`    
-                console.log(this.generateRouterImportCode(frontEnd)+innerRouterCode,"Router code");
-            })
+            });
 
             const routerCode = `
             import { createBrowserRouter, } from "react-router-dom";
@@ -49,9 +47,10 @@ export default class FrontEndScreenOperation {
             ])
 
             export default router;
+            export const RouterConstant = ${this.generateRouterConstant(frontEnd.layout)}
+
             `
 
-            console.log(innerRouterCode,"innerRouterCode")
 
         GeneratorHelper.writeFile(path, `genRouter.tsx`,`
 ${routerCode}
@@ -141,7 +140,7 @@ export default ${lo.name}Layout;
 
     static generateRouterCode(children: ILayout[]) {
         const modifiedString = JSON.stringify(this.generateRouterObject(children)).replace(/"element":"(.*?)"/g, (match, p1) => `"element":${p1}`);
-
+        console.log(this.generateRouterConstant(children),"Router constant..........................")
         return modifiedString;
     }
 
@@ -181,7 +180,6 @@ export default ${lo.name}Layout;
 
     static findScreenPath(screenList: IScreen[],screenName: string) {
         const index = screenList.findIndex(screen => screen.name === screenName);
-        console.log(screenList[index],"screenList[index]")
         if(screenList[index]) {
         return screenList[index].path;
         } else {
@@ -201,4 +199,32 @@ export default ${lo.name}Layout;
             return route;
         })
     }
+
+    static generateRouterConstant(children: ILayout[]) {
+        let path = '';
+        const routeObj = generateRouterConstantObj(children);
+        function generateRouterConstantObj(children: ILayout[]): any {
+            
+        return children.reduce((acc: any,child: any,index: number) => {
+            if(child.children) {
+                // path = path+"/"+child.route;    
+                path = child.route&&child.route!=""&&child.route!="/"?path+"/"+child.route:path;
+                acc[child.name] = generateRouterConstantObj(child.children);
+                console.log(child.name,"path")
+            } else {
+                path = child.route&&child.route!=""&&child.route!="/"?path+"/"+child.route:path;
+                acc[child.name] = path;
+                path = path.split("/").slice(0,-1).join('/').toString();
+                if(index==children.length-1) {
+                    path = path.split("/").slice(0,-1).join('/').toString();
+                }
+                
+            }
+            
+            return acc;
+        },{})
+    }
+
+    return JSON.stringify(routeObj);
+}
 }

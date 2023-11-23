@@ -212,7 +212,7 @@ export default function ApiSetup() {
   };
 
   const handleTestApi = async (api: IApi, apiSection: IApiSection) => {
-    const url = `http://localhost:3000/${getApiName(
+    const url = `http://localhost:8000/${getApiName(
       apiSection.name
     )}/${getApiName(api.name)}`;
     const selectedSection = [...apiSectionList].find((section) => {

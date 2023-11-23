@@ -121,7 +121,7 @@ const dataTypeFieldFormSchema: FormSchema = {
       label: "Type",
       rules: [Rules.Required],
       type: FieldType.Select,
-      options: ["string", "number", "object",'boolean', "date","any","string[]","object[]","any[]",],
+      options: ["string", "number", "object",'boolean', "date","any","String[]","object[]","any[]",],
       boundaryClass: "col-4 mx-1",
     },
     {

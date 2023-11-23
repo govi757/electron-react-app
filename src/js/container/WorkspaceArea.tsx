@@ -161,24 +161,24 @@ export default function WorkspaceArea() {
         collectionList: [
           {
             fields: [
-              { name: "userName", type: "String", required: true, index: true },
-              { name: "emailId", type: "String", required: true, index: false },
+              { name: "userName", type: "string", required: true, index: true },
+              { name: "emailId", type: "string", required: true, index: false },
               {
                 name: "password",
-                type: "String",
+                type: "string",
                 required: true,
                 index: false,
               },
-              { name: "mobile", type: "String", required: false, index: false },
+              { name: "mobile", type: "string", required: false, index: false },
               {
                 name: "firstName",
-                type: "String",
+                type: "string",
                 required: true,
                 index: false,
               },
               {
                 name: "lastName",
-                type: "String",
+                type: "string",
                 required: false,
                 index: false,
               },
@@ -187,10 +187,10 @@ export default function WorkspaceArea() {
           },
           {
             fields: [
-              { name: "name", type: "String", required: true, index: false },
+              { name: "name", type: "string", required: true, index: false },
               {
                 name: "description",
-                type: "String",
+                type: "string",
                 required: false,
                 index: false,
               },
@@ -199,10 +199,10 @@ export default function WorkspaceArea() {
           },
           {
             fields: [
-              { name: "name", type: "String", required: true, index: false },
+              { name: "name", type: "string", required: true, index: false },
               {
                 name: "description",
-                type: "String",
+                type: "string",
                 required: false,
                 index: false,
               },

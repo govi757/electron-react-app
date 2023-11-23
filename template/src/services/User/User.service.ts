@@ -16,7 +16,7 @@ export default class UserService implements IUserApi {
             if (user) {
                 res.status(400).send("User allready registered")
             } else {
-                const encryptedPassword = await bcrypt.hash(input.password, 10);
+                const encryptedPassword = await bcrypt.hash(input.password.toString(), 10);
                 const newUser = new User({
                     userName: input.userName,
                     emailId: input.emailId,
@@ -40,7 +40,7 @@ export default class UserService implements IUserApi {
             if (!user) {
                 return res.status(400).json({ message: 'User not found' });
             }
-            const isPasswordValid = await bcrypt.compare(input.password,user.password.toString());
+            const isPasswordValid = await bcrypt.compare(input.password.toString(),user.password.toString());
 
             if (!isPasswordValid) {
                 return res.status(401).json({ message: 'Invalid password' });

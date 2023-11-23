@@ -6,6 +6,7 @@ export interface IApi {
     testData?: any;
     testResponse?: ApiResponse;
     authenticated?: boolean;
+    isOutputArray?: boolean;
 }
 
 export interface IApiSection {
@@ -26,7 +27,7 @@ export enum DataTypes {
     Date="date",
     Any="any",
     StringArray="string[]",
-    ObjectArray="string[]",
+    ObjectArray="object[]",
     AnyArray="any[]",
 
 }

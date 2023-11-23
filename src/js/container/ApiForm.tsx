@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Form, { FieldType, FormSchema } from "../component/form/Form";
 import { Rules } from "../component/form/rules";
 import { ApiType, DataTypes, IApi, IApiSection } from "../interfaces/IApi";
-import { Button } from "@mui/material";
+import { Button, Switch } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { normalDataTypes } from "../datas/constants";
 export default function ApiForm({
@@ -17,7 +17,8 @@ export default function ApiForm({
     type: ApiType.Get,
     input: {},
     output: {},
-    authenticated: false
+    authenticated: false,
+    isOutputArray: false
   });
 
   const [apiInputList, setApiInputList] = useState([
@@ -124,6 +125,12 @@ export default function ApiForm({
     setApiOutputList([...apiOutputList]);
   };
 
+  const handleIsOutputArraySwitch = (value: any) => {
+    console.log(value.target.checked,"Value");
+    apiForm.isOutputArray = value;
+    setApiForm(apiForm);
+  }
+
   return (
     <div>
       <Form
@@ -152,6 +159,7 @@ export default function ApiForm({
       <Button size="small" onClick={() => handleAddOutputForm()}>
         Add
       </Button>
+      <Switch value={apiForm.isOutputArray} onChange={value=> handleIsOutputArraySwitch(value)} ></Switch> Array
       {apiOutputList.map((apiOutput, index) => {
         return (
           <Form
