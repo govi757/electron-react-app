@@ -33,7 +33,7 @@ const GeneralForm = (
       error[field.dataSelectorKey] = errorMsg;
       setError({ ...error });
     });
-    const isValid = Object.keys(error).every((item) => error[item] == "");
+    const isValid = Object.keys(error).every((item) => error[item] === "");
     return isValid;
   };
 

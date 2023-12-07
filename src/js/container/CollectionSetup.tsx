@@ -11,6 +11,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Drawer,
 } from "@mui/material";
 import Form, { FieldType, FormSchema } from "../component/form/Form";
 import { Rules } from "../component/form/rules";
@@ -133,7 +134,7 @@ export default function CollectionSetup() {
   
   return (
     <div>
-      <Dialog fullWidth maxWidth={"md"} open={openDialog} onClose={() => setOpenDialog(false)}>
+      <Drawer PaperProps={{style:{width:"60%"}}} open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Action</DialogTitle>
         <DialogContent>
           {
@@ -160,7 +161,7 @@ export default function CollectionSetup() {
           }
             
         </DialogContent>
-        </Dialog>
+        </Drawer>
         <Button size="small" onClick={() => handleAddDb()}>Add Database</Button>
       {dbConfigList.map((dbConfig, index) => {
         return (

@@ -11,6 +11,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Drawer,
   TextField,
   Toolbar,
 } from "@mui/material";
@@ -266,7 +267,7 @@ export default function ApiSetup() {
 
   return (
     <div>
-      <Dialog fullWidth open={openDialog} onClose={() => {setOpenDialog(false)}}>
+      <Drawer  open={openDialog} PaperProps={{style:{width:"50%"}}} onClose={() => {setOpenDialog(false)}}>
         <DialogTitle>Action</DialogTitle>
         <DialogContent>
           {formType == "section" ? (
@@ -306,27 +307,29 @@ export default function ApiSetup() {
           />
           : null}
         </DialogContent>
-      </Dialog>
-      <div className="d-flex align-items-center mx-1 my-1 text-primary">
+      </Drawer>
+      <div className="d-flex align-items-center mx-2 pl-2 my-1 text-primary">
+        <span className="flex-fill">
         Sections: 
+        </span>
         <Button
         className="mx-3"
           size="small"
-          variant="outlined"
+          variant="text"
+          
           onClick={() => handleOpenAddSection()}
         >
-          Add 
+          
           <AddCircleOutline htmlColor="primary" />
         </Button>
 
         <Button
         className="mx-3"
           size="small"
-          variant="outlined"
+          variant="text"
           onClick={() => handleOpenAddAuthHeader()}
         >
           Add Auth Header
-          <AddCircleOutline htmlColor="primary" />
         </Button>
       </div>
       {apiSectionList.map((apiSection, index) => {
@@ -344,17 +347,21 @@ export default function ApiSetup() {
                   </Button>
                 </div>
               </AccordionSummary>
-              <AccordionDetails>
+              <AccordionDetails className="mx-2">
+                <div className="d-flex">
+                <span className="flex-fill">
                 Apis
+                </span>
+                
                 <Button
                   className="mx-1 my-1"
-                  variant="outlined"
+                  variant="text"
                   size="small"
                   onClick={() => handleOpenAddApi(apiSection)}
                 >
-                  Add
                   <AddCircleOutline htmlColor="primary" />
                 </Button>
+                </div>
                 {apiSection.apiList.map((api) => {
                   return (
                     <Accordion key={api.name + apiSection.name}>
@@ -364,12 +371,12 @@ export default function ApiSetup() {
                             {api.name}
                             {/* {JSON.stringify(api.input)} */}
                           </div>
-                          <Chip label={api.type} />
+                          <Chip variant="outlined"  size="small" style={{fontSize:"12px", borderRadius:"5px"}}  label={api.type} />
                           <Button
                             size="small"
                             onClick={() => handleOpenEditApi(apiSection, api)}
                           >
-                            <EditOutlined />
+                            <EditOutlined fontSize="small" />
                           </Button>
                           <Button
                             size="small"

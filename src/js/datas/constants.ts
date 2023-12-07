@@ -1,1 +1,1 @@
-export const normalDataTypes =  ["string", "number", "object", "date","any","string[]","object[]","any[]",];
+export const normalDataTypes =  ["string", "number", "object","boolean", "date","any","string[]","object[]","any[]","boolean[]"];

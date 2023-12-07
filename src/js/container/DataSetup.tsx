@@ -11,6 +11,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Drawer,
 } from "@mui/material";
 import Form, { FieldType, FormSchema } from "../component/form/Form";
 import { Rules } from "../component/form/rules";
@@ -99,7 +100,7 @@ export default function DataSetup() {
   
   return (
     <div>
-      <Dialog fullWidth maxWidth={"md"} open={openDialog} onClose={() => setOpenDialog(false)}>
+      <Drawer PaperProps={{style:{width:"50%"}}} open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Action</DialogTitle>
         <DialogContent>
           {
@@ -113,7 +114,7 @@ export default function DataSetup() {
           }
             
         </DialogContent>
-        </Dialog>
+        </Drawer>
         <Button size="small" onClick={() => handleAddDataType()}>Add DataType</Button>
       {dataTypeList.map((dataType, index) => {
         return (

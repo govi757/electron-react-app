@@ -7,6 +7,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Drawer,
   TextField,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
@@ -414,8 +415,8 @@ export default function FrontEndSetup() {
 
   return (
     <div className="ma-2">
-      <Dialog
-        fullWidth
+      <Drawer
+        
         open={addFrontEndDialog}
         onClose={() => {
           setAddFrontEndDialog(false);
@@ -430,10 +431,10 @@ export default function FrontEndSetup() {
             onbuttonClick={() => addFrontEnd()}
           />
         </DialogContent>
-      </Dialog>
+      </Drawer>
 
-      <Dialog
-        fullWidth
+      <Drawer
+        
         open={addLayoutDialog}
         onClose={() => {
           setAddLayoutDialog(false);
@@ -448,10 +449,10 @@ export default function FrontEndSetup() {
             onbuttonClick={() => addLayout()}
           />
         </DialogContent>
-      </Dialog>
+      </Drawer>
 
-      <Dialog
-        fullWidth
+      <Drawer
+
         open={addScreenRouteDialog}
         onClose={() => {
           setAddScreenRouteDialog(false);
@@ -466,17 +467,14 @@ export default function FrontEndSetup() {
             onbuttonClick={() => addScreenRoute()}
           />
         </DialogContent>
-      </Dialog>
+      </Drawer>
       
-
-      <Button onClick={() => setAddFrontEndDialog(true)}>
-        Add Front End Project
-      </Button>
-      <div className="row">
-        <div className="col-3">
+      <div className="row mx-3">
+        <div className="col-2">
           {frontEndProjectList.map((frontEndProject) => {
             return (
               <div
+              style={{color:`${frontEndProject.name === selectedFrontEnd?.name?'#0e387a':'black'}`}}
                 className="pointer"
                 onClick={() => selectFrontEndProject(frontEndProject)}
                 key={frontEndProject.name}
@@ -485,14 +483,17 @@ export default function FrontEndSetup() {
               </div>
             );
           })}
+          <div className="pointer" onClick={() => setAddFrontEndDialog(true)}>
+        Add Front End Project
+      </div>
         </div>
         {selectedFrontEnd && (
           <div className="col-8">
             <Accordion variant="outlined">
               <AccordionSummary>
                 <div className="d-flex w-100">
-                  <div className="flex-fill">
-                    Screen <Button onClick={() => saveScreen()}>Save</Button>
+                  <div >
+                    <span className="flex-fill">Screen</span> <Button variant="text" onClick={() => saveScreen()}>Save</Button>
                   </div>
                 </div>
               </AccordionSummary>
