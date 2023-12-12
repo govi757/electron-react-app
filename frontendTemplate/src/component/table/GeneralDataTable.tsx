@@ -1,11 +1,19 @@
-import { useMemo, useState } from "react";
-import GTableSchema, { FilterType, GColumnSchema, GFilterSchema } from "./GTableSchema";
+import { useImperativeHandle, useMemo, useState } from "react";
+import GTableSchema, {
+  ActionType,
+  FilterType,
+  GActionSchema,
+  GColumnSchema,
+  GFilterSchema,
+} from "./GTableSchema";
 import {
   Badge,
+  Button,
   Checkbox,
   Collapse,
   FormControl,
   InputLabel,
+  Menu,
   MenuItem,
   Select,
   SortDirection,
@@ -21,7 +29,16 @@ import {
 } from "@mui/material";
 import TableUtils from "./utils/TableUtils";
 import "./table.css";
-import { Filter, Filter1Outlined, FilterAlt } from "@mui/icons-material";
+import {
+  AddOutlined,
+  EditOutlined,
+  Filter,
+  Filter1Outlined,
+  FilterAlt,
+} from "@mui/icons-material";
+import GSelectField from "../form/fields/GSelectField";
+import GMenu from "../general/GMenu";
+import { selectValue } from "src/common/dataSelector";
 
 const GeneralDataTable = ({
   tableSchema,
@@ -35,14 +52,17 @@ const GeneralDataTable = ({
   const [page, setPage] = useState(0);
 
   const [searchText, setSearchText] = useState("");
+  const [selectedRowList, setSelectedRowList] = useState<any>([]);
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const [showFilterList, setShowFilterList] = useState(false);
+  const [showOtherMenu, setShowOtherMenu] = useState(false);
+  
 
   const [filterListWithValues, setFilterListWithValues] = useState(
     tableSchema.filterList.map((filter) => {
-      filter.value = filter.value?filter.value: [];
+      filter.value = filter.value ? filter.value : [];
       return filter;
     })
   );
@@ -89,20 +109,21 @@ const GeneralDataTable = ({
       sortedData = TableUtils.sort
         .sortData(data, order, orderBy)
         .filter((item) => {
-          return filterListWithValues.some((filter) =>
-            {
-              if(filter.type === FilterType.Boolean) {
-                return filter.value === item[filter.dataSelectorKey]
-              }
-              return filter.value?.includes(item[filter.dataSelectorKey])
-              }
-          );
+          return filterListWithValues.some((filter) => {
+            if (filter.type === FilterType.Boolean) {
+              return filter.value === item[filter.dataSelectorKey];
+            }
+            return filter.value?.includes(item[filter.dataSelectorKey]);
+          });
         });
     }
 
     return sortedData.filter((item) => {
       return tableSchema.columnList.some((column) =>
-        item[column.dataSelectorKey].toString().toLowerCase().includes(searchText.toLowerCase())
+        (selectValue(item, column.dataSelectorKey) || "")
+          .toString()
+          .toLowerCase()
+          .includes(searchText.toLowerCase())
       );
     });
   }, [
@@ -132,14 +153,94 @@ const GeneralDataTable = ({
       : filterItem;
     return (filter.value || [])?.indexOf(item) > -1;
   };
+
+  const handleSelectRow = (row: any, val: any) => {
+    const newSelectedRowList = selectedRowList;
+    if(tableSchema.itemKey) {
+      const selectedRowIndex = newSelectedRowList.indexOf(row[tableSchema.itemKey]);
+      if(selectedRowIndex===-1) {
+        newSelectedRowList.push(row[tableSchema.itemKey]);
+      } else {
+        newSelectedRowList.splice(selectedRowIndex, 1);
+      }
+      
+    }
+    
+    setSelectedRowList([...newSelectedRowList])
+  }
+
+  const handleOtherMenuClick = (item: GActionSchema) => {
+      item.onClick(selectedRowList);
+    
+  }
+
+  const addActionList = () => {
+    return tableSchema.actionList.filter(
+      (item) => item.type === ActionType.Add
+    );
+  };
+
+  const editActionList = () => {
+    return tableSchema.actionList.filter(
+      (item) => item.type === ActionType.Edit
+    );
+  };
+
+  const otherActionList = () => {
+    return tableSchema.actionList.filter(
+      (item) => item.type === ActionType.Others
+    );
+  };
+
+  const resetTable = ()=> {
+    setSelectedRowList([]);
+    // if(tableSchema.ref) {
+    //   tableSchema.ref.current();
+    // }
+    
+  }
+
+  useImperativeHandle(tableSchema.ref, () => ({
+    resetTable,
+  }));
+
+  const nonBooleanFilter = () => {
+    return filterListWithValues.filter(item => item.type!==FilterType.Boolean);
+  }
   return (
     <div className="generalTable">
       <div className="px-2 d-flex align-items-center">
         <div className="flex-fill">
-          <h4>{tableSchema.title}</h4></div>
+          <h4>{tableSchema.title}</h4>
+        </div>
+        {otherActionList().length>0&&
+          <div className="mx-2">
+            <GMenu label="Actions">
+              {otherActionList().map((item, index) => {
+                return <MenuItem
+                disabled={(item.singleSelect&&selectedRowList.length!==1)||selectedRowList.length<1}
+                key={item.label + index} onClick={() => handleOtherMenuClick(item)}>{item.label}</MenuItem>
+              })}
+              
+            </GMenu>
+          </div>
+        }
+        {addActionList().map((action, index) => (
+          <Button
+            size="small"
+            key={action.label + index}
+            onClick={action.onClick}
+            className="mx-1"
+            variant="outlined"
+          >
+            <AddOutlined />
+            {action.label}
+          </Button>
+        ))}
+        
         <Collapse in={showFilterList} orientation="horizontal">
           <div className="d-flex">
-            {filterListWithValues.map((filter) => {
+            {nonBooleanFilter().map((filter) => {
               return (
                 <div>
                   <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
@@ -187,19 +288,26 @@ const GeneralDataTable = ({
             })}
           </div>
         </Collapse>
-        {filterListWithValues.length>0&&<Badge className="mx-3" badgeContent={appliedFilterCount()}  color="primary">
-        <FilterAlt
-        style={{cursor:"pointer"}}
-          onClick={() => {
-            setShowFilterList(!showFilterList);
-          }}
-        />
-        </Badge>}
+        {filterListWithValues.length > 0 && (
+          <Badge
+            className="mx-3"
+            badgeContent={appliedFilterCount()}
+            color="primary"
+          >
+            <FilterAlt
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                setShowFilterList(!showFilterList);
+              }}
+            />
+          </Badge>
+        )}
 
         <div>
           <TextField
+            size="small"
             value={searchText}
-            onInput={(event: any) => setSearchText(event.target.value)}
+            onInput={(event: any) => setSearchText(event?.target?.value)}
             placeholder="Search"
           />
         </div>
@@ -207,6 +315,7 @@ const GeneralDataTable = ({
       <Table size="small" sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
+            {otherActionList().length > 0 && <TableCell></TableCell>}
             {tableSchema.columnList.map((column) => {
               return (
                 <TableCell
@@ -226,6 +335,11 @@ const GeneralDataTable = ({
                 </TableCell>
               );
             })}
+            {editActionList().map((item) => (
+              <TableCell sortDirection={order} key={`${item.label}`}>
+                Action
+              </TableCell>
+            ))}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -234,6 +348,15 @@ const GeneralDataTable = ({
               key={`row${rowIndex}`}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
+              {otherActionList().length > 0 && (
+                <TableCell width={15}>
+                  {tableSchema.itemKey&&
+                  <Checkbox size="small" checked={selectedRowList.includes(row[tableSchema.itemKey])}
+                  onChange={(val) => {handleSelectRow(row,val)}}
+                  />
+                  }
+                </TableCell>
+              )}
               {tableSchema.columnList.map((column) => {
                 return (
                   <TableCell key={column.dataSelectorKey}>
@@ -246,6 +369,13 @@ const GeneralDataTable = ({
                   </TableCell>
                 );
               })}
+              {editActionList().map((item) => (
+                <TableCell sortDirection={order} key={`${item.label}`}>
+                  <span role="button" onClick={() => item.onClick(row)}>
+                    <EditOutlined fontSize="small" />
+                  </span>
+                </TableCell>
+              ))}
             </TableRow>
           ))}
         </TableBody>

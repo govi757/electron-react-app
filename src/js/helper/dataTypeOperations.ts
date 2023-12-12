@@ -4,9 +4,14 @@ import GeneratorHelper from "./GeneratorHelper";
 
 export default class DataTypeOperations {
     path: string = '';
+    frontEndPathList: string[] = [];
     constructor() {
         GeneratorHelper.getSelectedNodeProjectPath((projectPath: string) => {
             this.path = projectPath;
+        })
+
+        GeneratorHelper.getFrontEndPathList((projectPathList: string[]) => {
+            this.frontEndPathList = projectPathList;
         })
     }
 
@@ -17,6 +22,11 @@ export default class DataTypeOperations {
     buildDataCode(dataTypeList: IData[]) {
         let dataCode = this.generateDataCode(dataTypeList);
         GeneratorHelper.writeFile(this.dataPath,'generatedData.ts',dataCode);
+        this.frontEndPathList.forEach(frontEndPath => {
+            const dataPath = `${frontEndPath}/src/data`;
+            GeneratorHelper.writeFile(dataPath, "generatedData.ts", dataCode);
+        })
+    
     }
 
     // writeRouteCode(apiSection: IApiSection) {
@@ -26,6 +36,7 @@ export default class DataTypeOperations {
 
     generateDataCode(dataTypeList: IData[]) {
         const code = `
+        export namespace Data {
         ${dataTypeList.reduce((acc: string, dataType) => {
             const dataTypeKeyList = Object.keys(dataType.fields);
             // const outputKeyList = api.output ? Object.keys(api.output) : [];
@@ -61,6 +72,7 @@ export class ${dataType.name} {
             return acc;
         }, "")
             }
+        }
         `
         return code
     }

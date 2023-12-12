@@ -52,6 +52,17 @@ export const CollectionForm = ({
     setFieldList([...fieldList]);
   };
 
+  const handleCollectionFormAction  = (val: any,index: number) => {
+    console.log(val);
+    if(val==="delete") {
+      if(confirm("Are you sure want to delete this field")) {
+        const tempFieldList = [...fieldList]
+        tempFieldList.splice(index, 1);
+        setFieldList(tempFieldList);
+      }
+    }
+  }
+
   return (
     <div>
       <Form
@@ -80,6 +91,7 @@ export const CollectionForm = ({
             formSchema={collectionFieldFormSchema}
             value={field}
             onInput={(value) => changeField(value, index)}
+            onbuttonClick={(val)=> handleCollectionFormAction(val, index)}
           />
         );
       })}
@@ -121,7 +133,7 @@ const collectionFieldFormSchema: FormSchema = {
       label: "Type",
       rules: [Rules.Required],
       type: FieldType.Select,
-      options: ["String", "Number", "Object", "Date","[String]"],
+      options: ["String", "Number", "Object","Boolean", "Date","[String]"],
       boundaryClass: "col-4 mx-1",
     },
     {
@@ -148,9 +160,10 @@ const collectionFieldFormSchema: FormSchema = {
   ],
   actionList: [
     {
-      actionKey: "add",
-      label: "add",
+      actionKey: "delete",
+      label: "delete",
       component: DeleteOutline,
+      btnType: BtnType.TEXT
     },
   ],
 };

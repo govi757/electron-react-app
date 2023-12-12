@@ -89,6 +89,7 @@ export default function FrontEndSetup() {
   const [screenList, setScreenList] = useState<IScreen[]>([]);
 
   const [layoutMenuVisible, setLayoutMenuVisible] = useState(false);
+  const [selectedEntityForRightMenu, setSelectedEntityForRightMenu] = useState<any>({});
   const [screenMenuVisible, setScreenMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
 
@@ -144,16 +145,18 @@ export default function FrontEndSetup() {
     setSelectedFrontEnd(frontEndProject);
   };
 
-  const showContextMenu = (e: any) => {
+  const showContextMenu = (e: any,child: any) => {
     e.preventDefault();
     setMenuPosition({ top: e.clientY, left: e.clientX });
     setLayoutMenuVisible(true);
+    setSelectedEntityForRightMenu(child)
   };
 
-  const showContextMenuFromScreenRoute = (e: any) => {
+  const showContextMenuFromScreenRoute = (e: any,child: any) => {
     e.preventDefault();
     setMenuPosition({ top: e.clientY, left: e.clientX });
     setScreenMenuVisible(true);
+    setSelectedEntityForRightMenu(child)
   };
 
   const addScreen = () => {
@@ -207,8 +210,8 @@ export default function FrontEndSetup() {
 
   const deleteLayout = (layoutName: string) => {
 
-    if(confirm("Are you sure ant to delete?")) {
-
+    if(confirm("Are you sure ant to delete?"+layoutName)) {
+      
     
     const traverseLayout = (children: ILayout[]) => {
       children.map((child,index) => {
@@ -219,9 +222,11 @@ export default function FrontEndSetup() {
             traverseLayout(child.children);
           }
         }
+        return child
       });
     }
     if (selectedFrontEnd) {traverseLayout(selectedFrontEnd?.layout)};
+    console.log(selectedFrontEnd,"selectedFrontEnd")
     updateSelectedFrontEnd();
   }
     
@@ -229,23 +234,27 @@ export default function FrontEndSetup() {
 
   const deleteScreenRoute =  (screenName: string) => {
 
-    if(confirm("Are you sure ant to delete?")) {
+    if(confirm("Are you sure ant to delete?"+screenName)) {
 
     
     const traverseLayout = (children: ILayout[]) => {
       children.map((child,index) => {
+        
         if (child.children) {
-          if (child.name === screenName) {
-            
-          } else {
+          
             traverseLayout(child.children);
-          }
+          
         } else {
-          children.splice(index,1);
+          if(child.name === screenName) {
+            console.log(JSON.stringify(children), "Iteration");
+            children.splice(index,1);  
+          }
         }
+        return child
       });
     }
     if (selectedFrontEnd) {traverseLayout(selectedFrontEnd?.layout)};
+    console.log(selectedFrontEnd,"selectedFrontEnd")
     updateSelectedFrontEnd();
   }
     
@@ -360,7 +369,7 @@ export default function FrontEndSetup() {
         return (
           <Accordion key={`${child.name}Layout`}>
             <AccordionSummary
-              onContextMenu={showContextMenu}
+              onContextMenu={(e) => showContextMenu(e,child)}
               onClick={() => setLayoutMenuVisible(false)}
               className="row "
             >
@@ -372,13 +381,13 @@ export default function FrontEndSetup() {
                 >
                   <div
                     className="col"
-                    onClick={() => handleAddLayoutclick(child.name)}
+                    onClick={() => handleAddLayoutclick(selectedEntityForRightMenu.name)}
                   >
-                    Add Layout
+                    Add Layout for {selectedEntityForRightMenu.name}
                   </div>
-                  <div className="col" onClick={() => handleAddScreeRouteClick(child.name)}>Add Screen</div>
+                  <div className="col" onClick={() => handleAddScreeRouteClick(selectedEntityForRightMenu.name)}>Add Screen for {selectedEntityForRightMenu.name}</div>
                   <div className="col"
-                  onClick={() => deleteLayout(child.name)}
+                  onClick={() => deleteLayout(selectedEntityForRightMenu.name)}
                   >Delete</div>
                 </div>
               )}
@@ -391,7 +400,7 @@ export default function FrontEndSetup() {
           <AccordionSummary
             className=" row px-3 py-3"
             key={`${child.name}screen`}
-            onContextMenu={showContextMenuFromScreenRoute}
+            onContextMenu={(e) => showContextMenuFromScreenRoute(e, child)}
             onClick={() => setScreenMenuVisible(false)}
           >
             <span className="col-6">{child.name}</span>"{child.route}"
@@ -403,8 +412,8 @@ export default function FrontEndSetup() {
                 >
                   
                   <div className="col"
-                  onClick={() => deleteScreenRoute(child.name)}
-                  >Delete</div>
+                  onClick={() => deleteScreenRoute(selectedEntityForRightMenu.name)}
+                  >Delete {selectedEntityForRightMenu.name}</div>
                 </div>
               )}
           </AccordionSummary>

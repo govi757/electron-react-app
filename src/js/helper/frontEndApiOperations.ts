@@ -224,7 +224,7 @@ export default ${apiSection.name}Slice.reducer;
     generateApiActioncode(apiSection: IApiSection) {
         const code = `
         import { createAsyncThunk } from "@reduxjs/toolkit";
-        import axios from 'axios';
+        import axios, { AxiosError } from 'axios';
         import api from "../../api";
         import { ${apiSection.apiList.reduce((acc, curVal) => {
             const inputKeyList = Object.keys(curVal.input);
@@ -235,6 +235,23 @@ export default ${apiSection.name}Slice.reducer;
             acc = acc + `${outputKeyList.length>0?outputDataTypeName+',':''}`;
             return acc
         },'')} } from "./data";
+
+const showError = (err: AxiosError) => {
+    const errorResponse: any = err.response?.data || {};
+    if (err.response?.data) {
+      if (typeof (err.response?.data) == "string") {
+        return err.response?.data
+      } else {
+        return Object.keys(err.response?.data).reduce((acc, currVal) => {
+          acc = acc + errorResponse[currVal];
+          return acc;
+        }, "")
+      }
+    }
+    else {
+      return err.message
+    }
+  }
         ${apiSection.apiList.reduce((acc, curVal) => {
             const inputKeyList = Object.keys(curVal.input);
             const outputKeyList = Object.keys(curVal.output);
@@ -254,7 +271,7 @@ export default ${apiSection.name}Slice.reducer;
                   const { data } = await api.${curVal.type}('${this.getApiName(apiSection.name)}/${this.getApiName(curVal.name)}',${inputKeyList.length>0?`${curVal.type=='post'?'input':'{params: input.toJson()}'}`:''});
                   return output(data);
                 } catch (err: any) {
-                    return error(err.message);
+                    return error(showError(err));
                 }
               }
             `

@@ -16,7 +16,7 @@ const GeneralForm = (
   ref: any
 ) => {
   const handleInputChange = (event: any, dataSelectorKey: string) => {
-    value[dataSelectorKey] = event.target.value;
+    value[dataSelectorKey] = event;
     if (onInput) onInput({ ...value });
   };
 
