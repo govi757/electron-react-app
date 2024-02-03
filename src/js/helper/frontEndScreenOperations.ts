@@ -44,7 +44,9 @@ export default class FrontEndScreenOperation {
             ${this.generateRouterImportCode(frontEnd)}
             const router = createBrowserRouter([
                 ${innerRouterCode}
-            ])
+            ],{
+                basename:"/${frontEnd.name.toLowerCase()}"
+            })
 
             export default router;
             export const RouterConstant = ${this.generateRouterConstant(frontEnd.layout)}
@@ -207,16 +209,22 @@ export default ${lo.name}Layout;
             
         return children.reduce((acc: any,child: any,index: number) => {
             if(child.children) {
-                // path = path+"/"+child.route;    
+                // path = path+"/"+child.route;
+                console.log(path,"PAth in layout")
                 path = child.route&&child.route!=""&&child.route!="/"?path+"/"+child.route:path;
                 acc[child.name] = generateRouterConstantObj(child.children);
                 console.log(child.name,"path")
             } else {
                 path = child.route&&child.route!=""&&child.route!="/"?path+"/"+child.route:path;
                 acc[child.name] = path;
-                path = path.split("/").slice(0,-1).join('/').toString();
+                console.log(path,"Path..............Path")
+                const pathNumToBeRemoved = child.route.split("/").length;
+                    path = path.split("/").slice(0,-pathNumToBeRemoved).join('/').toString();
+                
                 if(index==children.length-1) {
                     path = path.split("/").slice(0,-1).join('/').toString();
+                    // const pathNumToBeRemoved = child.route.split("/").length;
+                    // path = path.split("/").slice(0,-pathNumToBeRemoved).join('/').toString();
                 }
                 
             }

@@ -2,11 +2,14 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { ArrowDropDown } from '@mui/icons-material';
+import { ArrowDropDown, MoreVert } from '@mui/icons-material';
 
 export default function GMenu(props: {
     children: any;
-    label: string;
+    label?: string;
+    isIcon?: boolean;
+    closeOnSelect?: boolean;
+    icon?:React.ElementType;
 }) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -19,7 +22,16 @@ export default function GMenu(props: {
 
   return (
     <div>
-      <Button
+      {props.isIcon?<Button
+        id="demo-positioned-button"
+        aria-controls={open ? 'demo-positioned-menu' : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? 'true' : undefined}
+        onClick={handleClick}
+        variant='text'
+        size='small'
+        style={{minWidth:20}}
+      >{props.icon?<props.icon />:<MoreVert/>}</Button>: <Button
         id="demo-positioned-button"
         aria-controls={open ? 'demo-positioned-menu' : undefined}
         aria-haspopup="true"
@@ -30,7 +42,7 @@ export default function GMenu(props: {
       >
         {props.label}
         <ArrowDropDown />
-      </Button>
+      </Button>}
       <Menu
         id="demo-positioned-menu"
         aria-labelledby="demo-positioned-button"
@@ -45,6 +57,7 @@ export default function GMenu(props: {
           vertical: 'top',
           horizontal: 'left',
         }}
+        onClick={() => props.closeOnSelect?handleClose():null}
       >
         {props.children}
         {/* <MenuItem onClick={handleClose}>Profile</MenuItem>

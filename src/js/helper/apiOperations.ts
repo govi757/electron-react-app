@@ -233,7 +233,7 @@ export default class ${serviceName} implements ${interfaceName} {
             const inputName: string = (`${apiSection.name}_${currVal.name}_Input`).toUpperCase();
             
             acc = acc + `
-                    this.app.route('/${this.getApiName(apiSection.name)}/${this.getApiName(currVal.name)}').${currVal.type}(${currVal.authenticated === true?'verifyToken,':''}async (req: express.Request, res: express.Response) => {
+                    this.app.route('/api/${this.getApiName(apiSection.name)}/${this.getApiName(currVal.name)}').${currVal.type}(${currVal.authenticated === true?'verifyToken,':''}async (req: express.Request, res: express.Response) => {
                         ${
                             Object.keys(currVal.input).length>0?
                             ` const input: ${inputName} = ${inputName}.fromJSON(${currVal.type==ApiType.Get?'req.query':'req.body'});

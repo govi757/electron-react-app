@@ -182,10 +182,14 @@ export default function ApiSetup() {
   };
 
   const deleteApisSection = (index: number) => {
+    if (confirm("Are you sure want to delete?!") == true) {
     const sectionList = [...apiSectionList];
     sectionList.splice(index, 1);
     setApiSectionList(sectionList);
     updateApiSectionFile(sectionList);
+    } else {
+
+    }
   };
 
   const editApisSection = (index: number) => {
@@ -213,7 +217,7 @@ export default function ApiSetup() {
   };
 
   const handleTestApi = async (api: IApi, apiSection: IApiSection) => {
-    const url = `http://localhost:8000/${getApiName(
+    const url = `http://localhost:8000/api/${getApiName(
       apiSection.name
     )}/${getApiName(api.name)}`;
     const selectedSection = [...apiSectionList].find((section) => {

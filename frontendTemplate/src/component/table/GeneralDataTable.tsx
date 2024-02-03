@@ -54,7 +54,7 @@ const GeneralDataTable = ({
   const [searchText, setSearchText] = useState("");
   const [selectedRowList, setSelectedRowList] = useState<any>([]);
 
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [showFilterList, setShowFilterList] = useState(false);
   const [showOtherMenu, setShowOtherMenu] = useState(false);

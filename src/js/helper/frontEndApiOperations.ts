@@ -175,7 +175,6 @@ import {${
 import { ApiStatus } from "src/data/common";
 interface ${apiSection.name}State {
     ${apiSection.apiList.reduce((acc, curVal) => {
-        console.log(curVal.output,"Output current value.............................")
         acc = acc + `${curVal.name}Output: ${Object.keys(curVal.output).length>0?`I_${apiSection.name.toUpperCase()}_${curVal.name.toUpperCase()}_OUTPUT${curVal.isOutputArray?'[]':''}`:"any"},\n${curVal.name}Status: ApiStatus,\n${curVal.name}Error: string | null,\n`
         return acc
     },"")}
