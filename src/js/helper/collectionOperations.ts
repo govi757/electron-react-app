@@ -21,7 +21,7 @@ export default class CollectionOperation {
 
 
     buildCollectionCode(databaseList: IDataBase[]) {
-        let interfaceCode = '';
+        let interfaceCode = 'import {Schema} from "mongoose";\n';
         databaseList.forEach(database => {
             database.collectionList.forEach(collection => {
                 interfaceCode = interfaceCode + this.generateCollectionInterfaceCode(collection,database.dbName);
@@ -67,7 +67,7 @@ import { Schema, model, connect, ObjectId } from 'mongoose';\n
 import {${interfaceName}} from '../../data/interfaces';
 const ${collection.name}Schema = new Schema<${interfaceName}>({
     ${collection.fields.reduce((acc: any, currVal) => {
-            acc = acc + `${currVal.name}: {type: ${currVal.type} ${currVal.required?',required:true':''} ${currVal.index?",index:true":""}${currVal.unique?',unique:true':''}},\n\t`;
+            acc = acc + `${currVal.name}: {type: ${currVal.type} ${currVal.required?',required:true':''} ${currVal.index?",index:true":""}${currVal.unique?',unique:true':''}${currVal.ref?`,ref:"${currVal.ref}"`:''}},\n\t`;
             return acc;
         }, "")
             }

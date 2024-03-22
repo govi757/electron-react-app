@@ -210,15 +210,21 @@ export default ${lo.name}Layout;
         return children.reduce((acc: any,child: any,index: number) => {
             if(child.children) {
                 // path = path+"/"+child.route;
-                console.log(path,"PAth in layout")
+                console.log(path,"Path With layout")
                 path = child.route&&child.route!=""&&child.route!="/"?path+"/"+child.route:path;
                 acc[child.name] = generateRouterConstantObj(child.children);
-                console.log(child.name,"path")
+                console.log(child.name,index,children.length,"Path With layout After")
+                if(index==children.length-1) {
+                    path = path.split("/").slice(0,-1).join('/').toString();
+                    // const pathNumToBeRemoved = child.route.split("/").length;
+                    // path = path.split("/").slice(0,-pathNumToBeRemoved).join('/').toString();
+                }
             } else {
                 path = child.route&&child.route!=""&&child.route!="/"?path+"/"+child.route:path;
                 acc[child.name] = path;
-                console.log(path,"Path..............Path")
+                console.log(path,"Path Without layout")
                 const pathNumToBeRemoved = child.route.split("/").length;
+                console.log(pathNumToBeRemoved,index,children.length,"pathNumToBeRemoved..............")
                     path = path.split("/").slice(0,-pathNumToBeRemoved).join('/').toString();
                 
                 if(index==children.length-1) {

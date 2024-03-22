@@ -220,6 +220,7 @@ export default function ApiSetup() {
     const url = `http://localhost:8000/api/${getApiName(
       apiSection.name
     )}/${getApiName(api.name)}`;
+    
     const selectedSection = [...apiSectionList].find((section) => {
       return section.name === apiSection.name;
     });
@@ -237,7 +238,9 @@ export default function ApiSetup() {
         });
     } else {
       const getUrl = `${url}${!!api.testData?Object.keys(api.testData).reduce((acc, cur) => {
+        if(Object.keys(api.input).includes(cur)) {
         acc = acc +   `?${cur}=${api.testData[cur]}`
+        }
         return acc
       },''):''}`
       await axios

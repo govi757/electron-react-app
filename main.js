@@ -48,16 +48,6 @@ ipcMain.on("create-file", async (event, path, fileName, content) => {
     if (!fs.existsSync(filePath)) {
       fs.writeFileSync(filePath, content);
     }
-  // if (!fs.existsSync(path)) {
-  //   await fs.mkdirSync(path, { recursive: true });
-  //   const filePath = `${path}/${fileName}`;
-  //   if (!fs.existsSync(filePath)) {
-  //     fs.writeFileSync(filePath, content);
-  //   }
-  // } else {
-  //   console.log("File already exists.");
-  // }
-
   
 });
 
@@ -75,15 +65,7 @@ ipcMain.on("write-file", (event, path, fileName, content = "{}") => {
 });
 
 ipcMain.handle("open-folder", async (event, message) => {
-  // shell.showItemInFolder("")
-  //   dialog.showOpenDialog({properties: ['openFile','openDirectory'] }).then(function (response) {
-  //     if (!response.canceled) {
-  //     createFile(response.filePaths[0],'testFile.txt',"content");
-  //     return response.filePaths[0];
-  //     } else {
-  //       console.log("no file selected");
-  //     }
-  // });
+
 
   const response = await dialog.showOpenDialog({
     properties: ["openFile", "openDirectory"],
@@ -97,17 +79,8 @@ ipcMain.handle("read-dir", async (event, src) => {
 });
 
 ipcMain.handle("copy-base-folder", async (event, destUrl) => {
-  // const filePath = `${dest}/baseConfig.json`
-  // console.log(filePath,"filePath")
-  // fs.readFile(filePath,'utf8',(err, jsonString) => {
-  //   const json = JSON.parse(jsonString);
-  //   if (err) {
-  //     console.log("File read failed:", err);
-  //     return;
-  //   }
-  //   console.log(jsonString);
+
   const sourceStaticFolder = path.join(__dirname, "template");
-  //   const destUrl = `${dest}/${json.name}`
   console.log(destUrl, "Dest  url is this");
   if (!fs.existsSync(destUrl)) {
     fs.cpSync(sourceStaticFolder, destUrl, { recursive: true });
@@ -117,21 +90,11 @@ ipcMain.handle("copy-base-folder", async (event, destUrl) => {
 
 
 ipcMain.handle("copy-frontend-base-folder", async (event, destUrl) => {
-  // const filePath = `${dest}/baseConfig.json`
-  // console.log(filePath,"filePath")
-  // fs.readFile(filePath,'utf8',(err, jsonString) => {
-  //   const json = JSON.parse(jsonString);
-  //   if (err) {
-  //     console.log("File read failed:", err);
-  //     return;
-  //   }
-  //   console.log(jsonString);
+
   const sourceStaticFolder = path.join(__dirname, "frontendTemplate");
-  //   const destUrl = `${dest}/${json.name}`
   if (!fs.existsSync(destUrl)) {
     fs.cpSync(sourceStaticFolder, destUrl, { recursive: true });
   }
-  // });
 });
 
 ipcMain.handle("read-file", async (event, src) => {

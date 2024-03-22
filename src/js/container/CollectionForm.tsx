@@ -8,10 +8,13 @@ import { Field, ICollection } from "../interfaces/ICollection";
 export const CollectionForm = ({
   collectionAdded,
   collectionData,
+  collectionList
 }: {
   collectionAdded: any;
   collectionData?: ICollection;
+  collectionList?:any[];
 }) => {
+  const [innerCollectionFieldFormSchema, setInnerCollectionFieldFormSchema] = useState(collectionFieldFormSchema);
   const [collectionForm, setCollectionForm] = useState<ICollection>({
     fields: [],
     name: "",
@@ -30,9 +33,19 @@ export const CollectionForm = ({
   useEffect(() => {
     if(collectionData) {
       setCollectionForm(collectionData);
-      setFieldList([...collectionData.fields])
+      setFieldList([...collectionData.fields]);
+      addCollectionListForRef()
     }
   },[])
+
+  const addCollectionListForRef = () => {
+    if(collectionList) {
+    const temp = innerCollectionFieldFormSchema;
+    const index = temp.fieldList.findIndex(item => item.dataSelectorKey ==="ref");
+    temp.fieldList[index].options = [{name: undefined},...collectionList];
+    setInnerCollectionFieldFormSchema({...temp})
+    }
+  }
 
   const handleCollectionFormSubmit = () => {
     let isValidCollection = true;
@@ -84,15 +97,17 @@ export const CollectionForm = ({
       </div>
       {fieldList.map((field, index) => {
         return (
+          <div>
           <Form
             index={index}
             ref={(el: any) => (collectionFormRefList.current[index] = el)}
             key={"form" + index}
-            formSchema={collectionFieldFormSchema}
+            formSchema={innerCollectionFieldFormSchema}
             value={field}
             onInput={(value) => changeField(value, index)}
             onbuttonClick={(val)=> handleCollectionFormAction(val, index)}
           />
+          </div>
         );
       })}
 
@@ -126,15 +141,25 @@ const collectionFieldFormSchema: FormSchema = {
       label: "CollectionName",
       rules: [Rules.Required],
       type: FieldType.TextField,
-      boundaryClass: "col-3 mx-1",
+      boundaryClass: "col-2 mx-1",
     },
     {
       dataSelectorKey: "type",
       label: "Type",
       rules: [Rules.Required],
       type: FieldType.Select,
-      options: ["String", "Number", "Object","Boolean", "Date","[String]"],
-      boundaryClass: "col-4 mx-1",
+      options: ["String", "Number", "Object","Boolean", "Date","[String]","Schema.Types.ObjectId"],
+      boundaryClass: "col-3 mx-1",
+    },
+    {
+      dataSelectorKey: "ref",
+      label: "Ref",
+      rules: [],
+      type: FieldType.Select,
+      options: [],
+      boundaryClass: "col-2 mx-1",
+      optionText:"name",
+      optionValue:"name"
     },
     {
       dataSelectorKey: "required",

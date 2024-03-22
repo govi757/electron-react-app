@@ -134,15 +134,18 @@ export default function CollectionSetup() {
   
   return (
     <div>
-      <Drawer PaperProps={{style:{width:"60%"}}} open={openDialog} onClose={() => setOpenDialog(false)}>
+      <Drawer PaperProps={{style:{width:"80%"}}} open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Action</DialogTitle>
         <DialogContent>
           {
             formType=="add-collection"?
             <CollectionForm
             collectionAdded={(collectionData: any) => handleAddCollectionData(collectionData)}
+            collectionList={dbConfigList[selectedDbIndex].collectionList}
+            
             />: formType=="edit-collection" ?
             <CollectionForm
+            collectionList={dbConfigList[selectedDbIndex].collectionList}
             collectionAdded={(collectionData: any) => handleEditCollectionData(collectionData)}
             collectionData={selectedCollectionForEdit}
             />:formType==="add-db"?<Form

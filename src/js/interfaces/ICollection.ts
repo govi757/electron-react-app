@@ -15,7 +15,8 @@ export interface Field {
     required?: boolean,
     type: any,
     index?: boolean,
-    unique?: boolean
+    unique?: boolean,
+    ref?: string
 }
 
 export enum FieldType {

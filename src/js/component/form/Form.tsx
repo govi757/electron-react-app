@@ -29,6 +29,7 @@ export default React.forwardRef(function Form({
 
   const handleInputChange = (event: any, dataSelectorKey: string) => {
     value[dataSelectorKey] = event.target.value;
+    console.log(event,"event")
     if (onInput) onInput({ ...value });
   };
 
@@ -202,7 +203,7 @@ export default React.forwardRef(function Form({
                   >
                     {
                       (field.options || []).map(option => {
-                        return <MenuItem key={field.optionValue?[field.optionValue]:option} value={field.optionValue?[field.optionValue]:option}>
+                        return <MenuItem key={field.optionValue?option[field.optionValue]:option} value={field.optionValue?option[field.optionValue]:option}>
                           {field.optionText? option[field.optionText]: option}
                           </MenuItem>
                       })

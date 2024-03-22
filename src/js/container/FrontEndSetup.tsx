@@ -106,7 +106,6 @@ export default function FrontEndSetup() {
       const frontEndList = [...frontEndProjectList, addFrontEndForm];
       setAddFrontEndDialog(false);
       setFrontendProjectList(frontEndList);
-      console.log(frontEndProjectList, addFrontEndForm);
       updateFrontendFile(frontEndList);
     }
   };
@@ -117,7 +116,6 @@ export default function FrontEndSetup() {
       electron.filesApi
         .readFile(projectPath, "frontEndConfig.json")
         .then((res) => {
-          console.log(res, "res");
           setFrontendProjectList(JSON.parse(res));
         });
     } catch (e) {}
@@ -129,18 +127,15 @@ export default function FrontEndSetup() {
     const frontEndScreenList: IScreen[] = frontEndProject?.screenList.reduce(
       (acc: IScreen[], currVal) => {
         const screenIndex = acc.findIndex((item) => item.path === currVal.path);
-        console.log(screenIndex, currVal)
         if (screenIndex === -1) {
           acc.push({ screenList: currVal.name, path: currVal.path });
         } else {
-          console.log(acc[screenIndex],currVal.name,"acc[screenIndex]")
           acc[screenIndex].screenList = `${acc[screenIndex]?.screenList},${currVal.name}`;
         }
         return acc;
       },
       []
     );
-      console.log(frontEndScreenList,"frontEndScreenList")
     setScreenList(frontEndScreenList);
     setSelectedFrontEnd(frontEndProject);
   };
@@ -182,7 +177,6 @@ export default function FrontEndSetup() {
   };
 
   const handleAddLayoutclick = (layoutName: string) => {
-    console.log(layoutName, "layoutName");
     setSelectedLayout(layoutName);
     setAddLayoutDialog(true);
   };
@@ -226,7 +220,6 @@ export default function FrontEndSetup() {
       });
     }
     if (selectedFrontEnd) {traverseLayout(selectedFrontEnd?.layout)};
-    console.log(selectedFrontEnd,"selectedFrontEnd")
     updateSelectedFrontEnd();
   }
     
@@ -246,7 +239,6 @@ export default function FrontEndSetup() {
           
         } else {
           if(child.name === screenName) {
-            console.log(JSON.stringify(children), "Iteration");
             children.splice(index,1);  
           }
         }
@@ -254,14 +246,12 @@ export default function FrontEndSetup() {
       });
     }
     if (selectedFrontEnd) {traverseLayout(selectedFrontEnd?.layout)};
-    console.log(selectedFrontEnd,"selectedFrontEnd")
     updateSelectedFrontEnd();
   }
     
   };
 
   const handleAddScreeRouteClick = (layoutName: string) => {
-    console.log(layoutName, "layoutName");
     setSelectedLayout(layoutName);
     setAddScreenRouteDialog(true);
     const index = addScreenRouteFormSchema.fieldList.findIndex(item => item.dataSelectorKey==='element')
@@ -341,7 +331,6 @@ export default function FrontEndSetup() {
         name:"",
         route:""
       })
-      console.log(selectedFrontEnd, "selectedFrontEnd");
     }
   }
 
